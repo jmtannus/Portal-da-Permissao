@@ -22,6 +22,7 @@ export default function StarDustCursor({ className = "fixed inset-0 pointer-even
     const particlesRef = useRef<Particle[]>([]);
     const mouseRef = useRef({ x: -100, y: -100, isMoving: false });
     const targetElRef = useRef<DOMRect | null>(null);
+    const isMobileRef = useRef(false);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -30,64 +31,100 @@ export default function StarDustCursor({ className = "fixed inset-0 pointer-even
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
+        const checkMobile = () => {
+            isMobileRef.current = window.innerWidth < 768;
+        };
+        checkMobile();
+
+        let resizeTimeout: ReturnType<typeof setTimeout>;
         const resize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+            // Debounce resize to avoid mobile keyboard/address bar jumps
+            resizeTimeout = setTimeout(() => {
+                if (canvas) {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                }
+            }, 500);
         };
 
-        window.addEventListener('resize', resize);
-        resize();
+        // Initial immediate resize
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        const onMouseMove = (e: MouseEvent) => {
-            mouseRef.current.x = e.clientX;
-            mouseRef.current.y = e.clientY;
+        window.addEventListener('resize', resize);
+
+        const onMouseMove = (e: MouseEvent | TouchEvent) => {
+            const isTouch = 'touches' in e;
+            const x = isTouch ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX;
+            const y = isTouch ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
+
+            mouseRef.current.x = x;
+            mouseRef.current.y = y;
             mouseRef.current.isMoving = true;
 
-            // Update target position if attractTargetId is provided
-            if (attractTargetId) {
-                const el = document.getElementById(attractTargetId);
-                if (el) {
-                    targetElRef.current = el.getBoundingClientRect();
-                }
-            } else {
-                targetElRef.current = null;
-            }
+            // In mobile touch, we don't necessarily want constant attraction,
+            // but we can spawn a few on touch start/move
+            if (isMobileRef.current && Math.random() > 0.3) return; // Throttled spawn on mobile
 
-            // Spawn particles: more if high intensity
-            const count = isHighIntensity ? 4 : 2;
+            const el = attractTargetId ? document.getElementById(attractTargetId) : null;
+            if (el) targetElRef.current = el.getBoundingClientRect();
+
+            const count = isMobileRef.current ? 1 : (isHighIntensity ? 4 : 2);
             for (let i = 0; i < count; i++) {
                 particlesRef.current.push({
-                    x: e.clientX + (Math.random() * (isHighIntensity ? 20 : 10) - (isHighIntensity ? 10 : 5)),
-                    y: e.clientY + (Math.random() * (isHighIntensity ? 20 : 10) - (isHighIntensity ? 10 : 5)),
+                    x: x + (Math.random() * (isHighIntensity ? 20 : 10) - (isHighIntensity ? 10 : 5)),
+                    y: y + (Math.random() * (isHighIntensity ? 20 : 10) - (isHighIntensity ? 10 : 5)),
                     size: Math.random() * (isHighIntensity ? 3 : 2) + 0.5,
                     life: 1,
-                    maxLife: Math.random() * 0.5 + 0.3, // 0.3 to 0.8 seconds approx with 60fps decay
+                    maxLife: Math.random() * 0.5 + 0.3,
                     vx: (Math.random() - 0.5) * (isHighIntensity ? 2 : 1),
-                    vy: Math.random() * 1 + 0.5 // drifting downwards
+                    vy: Math.random() * (isMobileRef.current ? 0.5 : 1) + 0.5
                 });
             }
         };
 
         window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('touchmove', onMouseMove, { passive: true });
+
+        // Mobile Ambient Mode: Periodic autonomous spawns
+        const ambientInterval = setInterval(() => {
+            if (isMobileRef.current && particlesRef.current.length < 30) {
+                particlesRef.current.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    size: Math.random() * 2 + 0.5,
+                    life: 1,
+                    maxLife: Math.random() * 2 + 1,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5
+                });
+            }
+        }, 300);
 
         let animationId: number;
         const render = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const activeParticles = [];
+            const maxParticles = isMobileRef.current ? 40 : 150;
+
+            // Cap particle count
+            if (particlesRef.current.length > maxParticles) {
+                particlesRef.current = particlesRef.current.slice(-maxParticles);
+            }
+
             for (let i = 0; i < particlesRef.current.length; i++) {
                 const p = particlesRef.current[i];
 
-                // Gravity Logic
-                if (targetElRef.current) {
+                // Attraction logic (only on desktop for better performance)
+                if (!isMobileRef.current && targetElRef.current) {
                     const targetX = targetElRef.current.left + targetElRef.current.width / 2;
                     const targetY = targetElRef.current.top + targetElRef.current.height / 2;
-                    
                     const dx = targetX - p.x;
                     const dy = targetY - p.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance < 600) { // Only attract if relatively close for natural feel
+                    if (distance < 600) {
                         const force = (1 - distance / 600) * 0.15;
                         p.vx += (dx / distance) * force;
                         p.vy += (dy / distance) * force;
@@ -96,7 +133,7 @@ export default function StarDustCursor({ className = "fixed inset-0 pointer-even
 
                 p.x += p.vx;
                 p.y += p.vy;
-                p.life -= 0.015; // Slightly slower fade for better visibility of the trail
+                p.life -= isMobileRef.current ? 0.01 : 0.015;
 
                 if (p.life > 0) {
                     activeParticles.push(p);
@@ -104,18 +141,14 @@ export default function StarDustCursor({ className = "fixed inset-0 pointer-even
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
 
                     if (particleColor) {
-                        // Attempt to inject alpha into provided hex, else fallback
                         if (particleColor.startsWith('#') && particleColor.length >= 7) {
                             const rgb = parseInt(particleColor.substring(1, 7), 16);
-                            const r = (rgb >> 16) & 0xff;
-                            const g = (rgb >> 8) & 0xff;
-                            const b = (rgb >> 0) & 0xff;
-                            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.life})`;
+                            ctx.fillStyle = `rgba(${(rgb >> 16) & 0xff}, ${(rgb >> 8) & 0xff}, ${rgb & 0xff}, ${p.life})`;
                         } else {
                             ctx.fillStyle = particleColor;
                         }
                     } else {
-                        ctx.fillStyle = `rgba(247, 231, 206, ${p.life})`; // Default Champagne
+                        ctx.fillStyle = `rgba(247, 231, 206, ${p.life})`;
                     }
                     ctx.fill();
                 }
@@ -129,7 +162,10 @@ export default function StarDustCursor({ className = "fixed inset-0 pointer-even
         return () => {
             window.removeEventListener('resize', resize);
             window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('touchmove', onMouseMove);
+            clearInterval(ambientInterval);
             cancelAnimationFrame(animationId);
+            if (resizeTimeout) clearTimeout(resizeTimeout);
         };
     }, [particleColor, isHighIntensity, attractTargetId]);
 
