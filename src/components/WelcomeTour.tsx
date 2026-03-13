@@ -76,32 +76,32 @@ export default function WelcomeTour({ currentStep, onNext, onPrev, onClose }: We
         <AnimatePresence mode="wait">
             <motion.div
                 key={currentStep}
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, y: 100 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 100 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-md"
+                className="fixed bottom-0 left-0 right-0 md:bottom-10 md:left-1/2 md:-translate-x-1/2 z-[9999] w-full md:w-[90%] md:max-w-md"
             >
-                <div className={`p-6 rounded-3xl flex flex-col gap-4 shadow-2xl border ${isNeuralStep ? 'bg-[#301934]/95 border-[#F7E7CE]/50 shadow-[#F7E7CE]/20 backdrop-blur-xl' : 'bg-[#1a0c1c]/95 border-[#d4af37]/30 shadow-black/80 backdrop-blur-xl'}`}>
+                <div className={`p-8 md:p-6 rounded-t-3xl md:rounded-3xl flex flex-col gap-5 md:gap-4 shadow-2xl border ${isNeuralStep ? 'bg-[#301934]/95 border-[#F7E7CE]/50 shadow-[#F7E7CE]/20 backdrop-blur-xl' : 'bg-[#1a0c1c]/95 border-[#d4af37]/30 shadow-black/80 backdrop-blur-xl'}`}>
 
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                        <span className={`text-xs font-bold tracking-widest ${isNeuralStep ? 'text-[#F7E7CE]' : 'text-[#d4af37]'}`}>
+                        <span className={`text-[10px] md:text-xs font-bold tracking-widest ${isNeuralStep ? 'text-[#F7E7CE]' : 'text-[#d4af37]'}`}>
                             PASSO {currentStep} DE {steps.length}
                         </span>
-                        <div className="flex gap-1">
+                        <div className="flex gap-1.5">
                             {steps.map((s) => (
                                 <div
                                     key={s.id}
-                                    className={`w-2 h-2 rounded-full transition-colors ${s.id === currentStep ? (isNeuralStep ? 'bg-[#F7E7CE]' : 'bg-[#d4af37]') : 'bg-white/10'}`}
+                                    className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-colors ${s.id === currentStep ? (isNeuralStep ? 'bg-[#F7E7CE]' : 'bg-[#d4af37]') : 'bg-white/10'}`}
                                 />
                             ))}
                         </div>
                     </div>
 
                     {/* Content */}
-                    <div>
-                        <h3 className={`font-serif text-xl md:text-2xl mb-2 ${isNeuralStep ? 'text-[#F7E7CE]' : 'text-white/90'}`}>
+                    <div className="space-y-2">
+                        <h3 className={`font-serif text-lg md:text-2xl luxury-text-glow ${isNeuralStep ? 'text-[#F7E7CE]' : 'text-white/90'}`}>
                             {stepData.title}
                         </h3>
                         <p className={`text-sm md:text-base font-light leading-relaxed ${isNeuralStep ? 'text-[#F7E7CE]/80' : 'text-white/60'}`} translate="no">
@@ -110,31 +110,38 @@ export default function WelcomeTour({ currentStep, onNext, onPrev, onClose }: We
                     </div>
 
                     {/* Actions */}
-                    <div className="flex justify-between items-center mt-2">
-                        <div className="flex items-center gap-3">
+                    <div className="flex justify-between items-center mt-2 md:mt-0">
+                        <div className="flex items-center gap-4 md:gap-3">
                             {currentStep > 1 && onPrev && (
                                 <button
                                     onClick={onPrev}
-                                    className={`p-2 rounded-full transition-colors ${isNeuralStep ? 'text-[#F7E7CE]/70 hover:bg-[#F7E7CE]/10' : 'text-white/50 hover:bg-white/10 hover:text-white/90'}`}
+                                    className={`p-2.5 md:p-2 rounded-full transition-colors ${isNeuralStep ? 'text-[#F7E7CE]/70 hover:bg-[#F7E7CE]/10' : 'text-white/50 hover:bg-white/10 hover:text-white/90'}`}
                                     aria-label="Passo Anterior"
                                 >
-                                    <ArrowLeft className="w-4 h-4" />
+                                    <ArrowLeft className="w-5 h-5 md:w-4 md:h-4" />
                                 </button>
                             )}
                             <button
                                 onClick={onClose}
-                                className={`text-xs underline transition-colors ${isNeuralStep ? 'text-[#F7E7CE]/50 hover:text-[#F7E7CE]' : 'text-white/30 hover:text-white/80'}`}
+                                className={`text-[11px] md:text-xs underline transition-colors ${isNeuralStep ? 'text-[#F7E7CE]/50 hover:text-[#F7E7CE]' : 'text-white/30 hover:text-white/80'}`}
                             >
                                 Pular Tour
                             </button>
                         </div>
 
                         <button
-                            onClick={() => {
+                            onClick={async () => {
                                 if (currentStep === 2) {
-                                    // Disparar som de cristal 528Hz
+                                    // Explicit 528Hz crystal sound trigger
                                     try {
-                                        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+                                        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+                                        const audioCtx = new AudioContextClass();
+                                        
+                                        // Mobile engines often need a resume() inside the click handler
+                                        if (audioCtx.state === 'suspended') {
+                                            await audioCtx.resume();
+                                        }
+
                                         const oscillator = audioCtx.createOscillator();
                                         const gainNode = audioCtx.createGain();
                                         oscillator.type = 'sine';
@@ -146,13 +153,15 @@ export default function WelcomeTour({ currentStep, onNext, onPrev, onClose }: We
                                         gainNode.connect(audioCtx.destination);
                                         oscillator.start();
                                         oscillator.stop(audioCtx.currentTime + 3);
-                                    } catch (e) { console.error(e) }
+                                    } catch (e) { 
+                                        console.error("Audio trigger error:", e); 
+                                    }
                                 }
                                 onNext();
                             }}
-                            className={`px-6 py-3 rounded-full text-sm font-medium transition-transform hover:scale-105 active:scale-95 ${isNeuralStep
-                                ? 'bg-[#F7E7CE] text-[#301934]'
-                                : 'bg-gradient-to-r from-[#d4af37] to-[#f4d068] text-black'
+                            className={`px-6 py-4 md:py-3 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 active:scale-95 shadow-xl ${isNeuralStep
+                                ? 'bg-[#F7E7CE] text-[#301934] shadow-[#F7E7CE]/10'
+                                : 'bg-gradient-to-r from-[#d4af37] to-[#f4d068] text-black shadow-[#d4af37]/20'
                                 }`}
                         >
                             {isLastStep ? 'Começar Jornada' : (isNeuralStep ? 'Compreendo meu Poder' : 'Próximo Passo')}

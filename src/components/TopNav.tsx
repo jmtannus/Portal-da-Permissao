@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import SOSButton from './SOSButton';
 import Logo from './Logo';
 
@@ -9,6 +11,7 @@ interface TopNavProps {
 
 export default function TopNav({ currentView, setCurrentView }: TopNavProps) {
     const [userName, setUserName] = useState('Janaína');
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
         try {
@@ -23,55 +26,104 @@ export default function TopNav({ currentView, setCurrentView }: TopNavProps) {
         } catch (e) { }
     }, []);
 
-    // Se estiver em modo de imersão/full screen de alguma ferramenta que não precise do nav, ou se quisermos sempre global:
-    // O pedido diz "Barra de navegação fixa no topo de todas as páginas".
+    const navLinks = [
+        { id: 'home', label: 'Início' },
+        { id: 'espelho', label: 'Espelho da Alma' },
+        { id: 'tesouro', label: 'Meu Tesouro' },
+    ];
+
+    const handleLinkClick = (id: string) => {
+        setCurrentView(id);
+        setIsMenuOpen(false);
+    };
 
     return (
-        <div className="fixed top-0 inset-x-0 z-[100] h-20 bg-[#301934]/60 backdrop-blur-xl border-b border-[#F7E7CE]/10 flex items-center justify-between px-6 md:px-12 transition-all duration-500">
+        <nav className="fixed top-0 inset-x-0 z-[100] h-20 bg-[#301934]/60 backdrop-blur-xl border-b border-[#F7E7CE]/10 flex items-center justify-between px-4 md:px-12 transition-all duration-500">
             {/* Left Box: Logo */}
-            <div className="flex-1 flex items-center justify-start">
+            <div className="flex-1 flex items-center justify-start z-10">
                 <button
                     id="global-nav-selo"
-                    onClick={() => setCurrentView('home')}
-                    className="flex items-center gap-3 group"
+                    onClick={() => handleLinkClick('home')}
+                    className="flex items-center gap-3 group outline-none"
                 >
-                    <Logo />
+                    <div className="scale-75 md:scale-100 origin-left">
+                        <Logo />
+                    </div>
                 </button>
             </div>
 
-            {/* Center Box: Links */}
-            <div className="flex-1 flex items-center justify-center gap-6 md:gap-10">
-                <button
-                    onClick={() => setCurrentView('home')}
-                    className={`text-sm tracking-widest uppercase transition-colors ${currentView === 'home' ? 'text-[#F7E7CE] font-medium' : 'text-[#F7E7CE]/50 hover:text-[#F7E7CE]/80 font-light'}`}
-                >
-                    Início
-                </button>
-                <button
-                    onClick={() => setCurrentView('espelho')}
-                    className={`text-sm tracking-widest uppercase transition-colors ${currentView === 'espelho' ? 'text-[#F7E7CE] font-medium' : 'text-[#F7E7CE]/50 hover:text-[#F7E7CE]/80 font-light'}`}
-                >
-                    Espelho da Alma
-                </button>
-                <button
-                    onClick={() => setCurrentView('tesouro')}
-                    className={`text-sm tracking-widest uppercase transition-colors ${currentView === 'tesouro' ? 'text-[#F7E7CE] font-medium' : 'text-[#F7E7CE]/50 hover:text-[#F7E7CE]/80 font-light'}`}
-                >
-                    Meu Tesouro
-                </button>
+            {/* Desktop Center Box: Links */}
+            <div className="hidden md:flex flex-1 items-center justify-center gap-10">
+                {navLinks.map((link) => (
+                    <button
+                        key={link.id}
+                        onClick={() => handleLinkClick(link.id)}
+                        className={`text-sm tracking-[0.2em] uppercase transition-all duration-300 hover:tracking-[0.3em] ${
+                            currentView === link.id 
+                                ? 'text-[#F7E7CE] font-medium luxury-text-glow' 
+                                : 'text-[#F7E7CE]/50 hover:text-[#F7E7CE]/80 font-light'
+                        }`}
+                    >
+                        {link.label}
+                    </button>
+                ))}
             </div>
 
-            {/* Right Box: Identity & S.O.S */}
-            <div className="flex-1 flex items-center justify-end gap-6 relative">
-                <span className="text-[#F7E7CE] font-serif italic text-lg tracking-wide hidden md:block opacity-90">
+            {/* Right Box: Identity, S.O.S & Hamburger */}
+            <div className="flex-1 flex items-center justify-end gap-3 md:gap-6 z-10">
+                <span className="text-[#F7E7CE] font-serif italic text-lg tracking-wide hidden lg:block opacity-90 truncate max-w-[150px]">
                     {userName}
                 </span>
 
-                {/* O SOSButton será posicionado relative por fora, então precisamos avisá-lo para não ser absolute. */}
-                <div className="relative flex items-center">
-                    <SOSButton inNav={true} />
+                <div className="flex items-center gap-2 md:gap-4">
+                    <div className="relative flex items-center scale-90 md:scale-100">
+                        <SOSButton inNav={true} />
+                    </div>
+
+                    {/* Hamburger Button */}
+                    <button
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="md:hidden p-2 text-[#F7E7CE] hover:bg-white/5 rounded-full transition-colors outline-none"
+                        aria-label="Toggle Menu"
+                    >
+                        {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                    </button>
                 </div>
             </div>
-        </div>
+
+            {/* Mobile Menu Dropdown */}
+            <AnimatePresence>
+                {isMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                        className="absolute top-20 left-0 right-0 bg-[#301934]/95 backdrop-blur-2xl border-b border-[#F7E7CE]/10 p-8 flex flex-col items-center gap-8 md:hidden shadow-2xl"
+                    >
+                        <div className="flex flex-col items-center gap-6 w-full">
+                            {navLinks.map((link) => (
+                                <button
+                                    key={link.id}
+                                    onClick={() => handleLinkClick(link.id)}
+                                    className={`text-lg tracking-[0.3em] uppercase py-2 w-full text-center border-b border-white/5 ${
+                                        currentView === link.id 
+                                            ? 'text-[#F7E7CE] font-medium luxury-text-glow' 
+                                            : 'text-[#F7E7CE]/50 font-light'
+                                    }`}
+                                >
+                                    {link.label}
+                                </button>
+                            ))}
+                        </div>
+                        
+                        <div className="pt-4 flex flex-col items-center gap-2">
+                            <span className="text-[#F7E7CE]/40 text-xs tracking-widest uppercase">Identidade Conectada</span>
+                            <span className="text-[#F7E7CE] font-serif italic text-xl">{userName}</span>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </nav>
     );
 }
