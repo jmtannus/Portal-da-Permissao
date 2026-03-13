@@ -64,6 +64,8 @@ const JEWELS: JewelDef[] = [
         description: 'O passado é uma biblioteca viva, e você detém a pena. Ao ressignificar sua dor, você não apaga o que viveu, mas transmuta o peso em sabedoria. Sua narrativa agora te pertence.',
         unlockedCriteria: 'Materializa-se quando você revisita um registro no Diário de Sombras e utiliza uma "Ponte de Permissão" para editá-lo',
         unlocked: false,
+        guardianImage: '/assets/guardia-trama-mudanca.jpg',
+        guardianTitle: 'Guardiã da Trama',
         colorHex: '#D4AF37',
         gradient: 'from-[#1a0f1c] to-[#301934]',
         isTramaAmulet: true
@@ -75,6 +77,8 @@ const JEWELS: JewelDef[] = [
         description: 'Aceitar não é render-se ao peso, mas sim ganhar a clareza para ver a trama inteira. Ao honrar sua dualidade, você transmuta o conflito em paz e a dor em sabedoria.',
         unlockedCriteria: 'Integração de Luz e Sombra no mesmo período (Heatmap)',
         unlocked: false,
+        guardianImage: '/assets/guardia-prisma-da-aceitacao.jpg',
+        guardianTitle: 'Troféu de Integração',
         colorHex: '#D4AF37',
         gradient: 'from-[#D4AF37] to-[#71368A]', // Dourado e Violeta alternados
         isMultifaceted: true // Meta para o ícone customizado
@@ -86,6 +90,8 @@ const JEWELS: JewelDef[] = [
         description: 'A joia final não é sobre o que você faz, mas sobre quem você é. Um diamante lapidado pela integração entre o humano, a técnica e a vida.',
         unlockedCriteria: 'Integração total do sistema',
         unlocked: true,
+        guardianImage: '/assets/guardia-essencia-do-ser.jpg',
+        guardianTitle: 'Selo Final da Sua Verdade',
         colorHex: '#F7E7CE',
         gradient: 'from-[#F7E7CE] to-[#d4af37]',
     },
@@ -96,6 +102,8 @@ const JEWELS: JewelDef[] = [
         description: 'A luz só é percebida porque existe o contraste. Honrar suas sombras é o primeiro passo para não ser mais dominada por elas. Você foi verdadeira consigo mesma.',
         unlockedCriteria: '5 registros realizados no Diário de Sombras',
         unlocked: false,
+        guardianImage: '/assets/guardia-da-obsidiana-da-verdade.jpg',
+        guardianTitle: 'Guardiã da Verdade',
         colorHex: '#301934',
         gradient: 'from-[#301934] to-[#5F4B8B]',
     }
@@ -149,8 +157,7 @@ export default function MeuTesouroParticular() {
     };
 
     const handleMaterializeRitual = () => {
-        if (!activeJewel) return;
-        if (activeJewel.id !== 'ametista' && activeJewel.id !== 'citrino' && activeJewel.id !== 'safira') return;
+        if (!activeJewel || !activeJewel.unlocked) return;
         
         play528Hz();
         setMaterializing(true);
@@ -190,6 +197,18 @@ export default function MeuTesouroParticular() {
         }
     }, [showGuardian, activeJewel]);
 
+    // Effect to unlock Essence of Being if all others are materialized
+    useEffect(() => {
+        const otherJewels = jewelsState.filter(j => j.id !== 'diamante-mel');
+        const allMaterialized = otherJewels.length > 0 && otherJewels.every(j => j.materialized);
+        
+        setJewelsState(prev => prev.map(j => 
+            j.id === 'diamante-mel' && j.unlocked !== allMaterialized 
+                ? { ...j, unlocked: allMaterialized } 
+                : j
+        ));
+    }, [jewelsState]);
+
     useEffect(() => {
         initParticlesEngine(async (engine: any) => {
             await loadSlim(engine);
@@ -228,28 +247,40 @@ export default function MeuTesouroParticular() {
                     }
                 });
 
-                setJewelsState(prev => prev.map(j => {
-                    const isMat = getMaterialized(j.id);
-                    if (j.id === 'obsidiana-verdade') {
-                        return { ...j, unlocked: sombraCount >= 5, materialized: isMat };
-                    }
-                    if (j.id === 'turmalina') {
-                        return { ...j, unlocked: isTramaUnlocked, materialized: isMat };
-                    }
-                    if (j.id === 'ametista') {
-                        return { ...j, unlocked: isAmetistaUnlocked, materialized: isMat };
-                    }
-                    if (j.id === 'citrino') {
-                        return { ...j, unlocked: isCitrinoUnlocked, materialized: isMat };
-                    }
-                    if (j.id === 'prisma-aceitacao') {
-                        return { ...j, unlocked: hasIntegration, materialized: isMat };
-                    }
-                    return { ...j, materialized: isMat };
-                }));
+                setJewelsState(prev => {
+                    const newState = prev.map(j => {
+                        const isMat = getMaterialized(j.id);
+                        if (j.id === 'obsidiana-verdade') {
+                            return { ...j, unlocked: sombraCount >= 5, materialized: isMat };
+                        }
+                        if (j.id === 'turmalina') {
+                            return { ...j, unlocked: isTramaUnlocked, materialized: isMat };
+                        }
+                        if (j.id === 'ametista') {
+                            return { ...j, unlocked: isAmetistaUnlocked, materialized: isMat };
+                        }
+                        if (j.id === 'citrino') {
+                            return { ...j, unlocked: isCitrinoUnlocked, materialized: isMat };
+                        }
+                        if (j.id === 'prisma-aceitacao') {
+                            return { ...j, unlocked: hasIntegration, materialized: isMat };
+                        }
+                        return { ...j, materialized: isMat };
+                    });
+
+                    // Final Check for Essência do Ser
+                    // Unlocks only if ALL other jewels are materialized
+                    const otherJewels = newState.filter(j => j.id !== 'diamante-mel');
+                    const allMaterialized = otherJewels.every(j => j.materialized);
+                    
+                    return newState.map(j => 
+                        j.id === 'diamante-mel' ? { ...j, unlocked: allMaterialized } : j
+                    );
+                });
             } else {
                 const isTramaUnlocked = localStorage.getItem('portal_trama_unlocked') === 'true';
                 const isCitrinoUnlocked = localStorage.getItem('portal_citrino_unlocked') === 'true';
+                const isAmetistaUnlocked = localStorage.getItem('portal_ametista_unlocked') === 'true';
 
                 setJewelsState(prev => prev.map(j => {
                     const isMat = getMaterialized(j.id);
@@ -538,6 +569,14 @@ export default function MeuTesouroParticular() {
                                 (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1518005020250-6eb5f3f2754d?auto=format&fit=crop&q=80&w=800'; // Fallback
                             }}
                         />
+
+                        {/* Special 'Selo Final' Effect for Essence Jewel */}
+                        {activeJewel.id === 'diamante-mel' && (
+                            <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#F7E7CE]/20 via-transparent to-transparent animate-pulse" />
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle,rgba(247,231,206,0.1)_0%,transparent_70%)] animate-[spin_20s_linear_infinite]" />
+                            </div>
+                        )}
                         
                         {/* Overlay Content */}
                         <div className="relative z-10 h-full w-full flex flex-col items-center justify-end p-8 text-center bg-gradient-to-t from-black via-transparent to-transparent">
