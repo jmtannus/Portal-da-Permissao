@@ -163,11 +163,40 @@ export default function MeuTesouroParticular() {
         setMaterializing(true);
         setExtraStardust(true);
         
-        setTimeout(() => {
+        // Finalize materialization logic
+        const finalize = () => {
             setShowGuardian(true);
             setMaterializing(false);
             setExtraStardust(false);
-        }, 3000);
+            
+            // Shared persistence
+            localStorage.setItem(`portal_materialized_${activeJewel.id}`, 'true');
+            setJewelsState(prev => prev.map(j => 
+                j.id === activeJewel.id ? { ...j, materialized: true } : j
+            ));
+        };
+
+        // Specific actions
+        switch(activeJewel.id) {
+            case 'ametista':
+                setAnchoringFlash(true);
+                setTimeout(() => setAnchoringFlash(false), 1500);
+                setTimeout(finalize, 3000);
+                break;
+            case 'citrino':
+                const solarUntil = Date.now() + (24 * 60 * 60 * 1000);
+                localStorage.setItem('portal_solar_mode_until', solarUntil.toString());
+                window.dispatchEvent(new CustomEvent('portal:solar_mode_activated'));
+                setTimeout(finalize, 3000);
+                break;
+            case 'prisma-aceitacao':
+                // Visual effect handled via class in the modal
+                setTimeout(finalize, 3000);
+                break;
+            default:
+                setTimeout(finalize, 3000);
+                break;
+        }
     };
 
     const handleAnchorIntention = () => {
@@ -559,7 +588,7 @@ export default function MeuTesouroParticular() {
                             <ChevronLeft className="w-6 h-6 rotate-90" />
                         </button>
 
-                    <div className="w-full max-w-sm aspect-[9/16] relative glass-panel overflow-hidden border-[#f7e7ce]/30 flex flex-col items-center group">
+                    <div className={`w-full max-w-sm aspect-[9/16] relative glass-panel overflow-hidden border-[#f7e7ce]/30 flex flex-col items-center group ${activeJewel.id === 'prisma-aceitacao' ? 'animate-refraction' : ''}`}>
                         {/* Background Guardian Image */}
                         <img 
                             src={activeJewel.guardianImage || "/assets/guardia-ametista.png"} 

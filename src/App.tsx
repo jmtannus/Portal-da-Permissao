@@ -15,6 +15,24 @@ function App() {
   const [currentView, setCurrentView] = useState<'home' | 'espelho' | 'tesouro' | 'oasis' | 'escrita' | 'sombras' | 'luz'>('home');
   const [isTourActive, setIsTourActive] = useState(false);
   const [currentTourStep, setCurrentTourStep] = useState(1);
+  const [isSolarMode, setIsSolarMode] = useState(false);
+
+  useEffect(() => {
+    // Check Solar Mode persistence (24h)
+    const solarActiveUntil = localStorage.getItem('portal_solar_mode_until');
+    if (solarActiveUntil && parseInt(solarActiveUntil) > Date.now()) {
+      setIsSolarMode(true);
+      document.body.classList.add('solar-mode');
+    }
+
+    const handleSolarActivation = () => {
+      setIsSolarMode(true);
+      document.body.classList.add('solar-mode');
+    };
+
+    window.addEventListener('portal:solar_mode_activated', handleSolarActivation);
+    return () => window.removeEventListener('portal:solar_mode_activated', handleSolarActivation);
+  }, []);
 
   useEffect(() => {
     const hasSeenTour = localStorage.getItem('portal_tour_completed');
@@ -88,7 +106,7 @@ function App() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col items-center justify-center p-6 sm:p-12 selection:bg-[#F7E7CE]/30 selection:text-white ${isTourActive ? `is-tour-step-${currentTourStep}` : ''}`}>
+    <div className={`min-h-screen flex flex-col items-center justify-center p-6 sm:p-12 selection:bg-[#F7E7CE]/30 selection:text-white ${isTourActive ? `is-tour-step-${currentTourStep}` : ''}`} data-solar-mode={isSolarMode}>
 
       {/* Global Elements */}
       {!isTourActive && <TopNav currentView={currentView} setCurrentView={setCurrentView} />}

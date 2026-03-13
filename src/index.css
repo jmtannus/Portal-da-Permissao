@@ -130,10 +130,21 @@
     opacity: 0;
   }
   10% {
-    opacity: 1;
+    opacity: 0.8;
   }
   100% {
     opacity: 0;
+  }
+}
+
+@keyframes refraction-border {
+  0%, 100% {
+    border-color: #F7E7CE;
+    box-shadow: 0 0 15px #F7E7CE, 0 0 30px #71368A;
+  }
+  50% {
+    border-color: #71368A;
+    box-shadow: 0 0 15px #71368A, 0 0 30px #F7E7CE;
   }
 }
 
@@ -172,6 +183,15 @@
       linear-gradient(rgba(48, 25, 52, 0.7), rgba(95, 75, 139, 0.7)),
       url('https://www.transparenttextures.com/patterns/silk-weave.png'),
       linear-gradient(to bottom, var(--color-deep-purple), var(--color-ultra-violet));
+    background-attachment: fixed;
+    transition: background 1.5s ease-in-out;
+  }
+
+  body.solar-mode {
+    background:
+      linear-gradient(rgba(247, 231, 206, 0.3), rgba(212, 175, 55, 0.2)),
+      url('https://www.transparenttextures.com/patterns/cream-dust.png'),
+      linear-gradient(to bottom, #301934, #71368A);
     background-attachment: fixed;
   }
 }
