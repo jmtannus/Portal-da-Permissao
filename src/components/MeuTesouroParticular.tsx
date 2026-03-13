@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, Sparkles } from 'lucide-react';
+import { Download, Sparkles, ChevronLeft } from 'lucide-react';
 import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
 
@@ -10,6 +10,7 @@ interface JewelDef {
     description: string;
     unlockedCriteria: string;
     unlocked: boolean;
+    materialized?: boolean;
     colorHex: string;
     gradient: string;
     isMultifaceted?: boolean;
@@ -97,36 +98,28 @@ export default function MeuTesouroParticular() {
     const [isFullyOpened, setIsFullyOpened] = useState(false);
     const [init, setInit] = useState(false);
     const [extraStardust, setExtraStardust] = useState(false);
+    const [materializing, setMaterializing] = useState(false);
+    const [showGuardian, setShowGuardian] = useState(false);
+    const [anchoringFlash, setAnchoringFlash] = useState(false);
+    const [intention, setIntention] = useState('');
 
-    const playHarpChord = () => {
+    const play528Hz = () => {
         try {
-            // Note: Since we don't have a specific file yet, we use a reliable external sound or a synthesized one.
-            // A simple Web Audio API harp chord is created to avoid broken links.
             const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-            const playString = (frequency: number, delay: number) => {
-                setTimeout(() => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
-
-                    gain.gain.setValueAtTime(0, ctx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.1);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3);
-
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 3);
-                }, delay * 1000);
-            };
-
-            // Cmaj7 chord (C, E, G, B) arpeggiated
-            playString(261.63, 0);     // C4
-            playString(329.63, 0.1);   // E4
-            playString(392.00, 0.2);   // G4
-            playString(493.88, 0.35);  // B4
-            playString(523.25, 0.5);   // C5
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(528, ctx.currentTime);
+            
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 4);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 4);
         } catch (e) {
             console.log("Audio play failed", e);
         }
@@ -138,11 +131,46 @@ export default function MeuTesouroParticular() {
         setActiveJewel(jewel);
 
         if (jewel.id === 'prisma-aceitacao') {
-            playHarpChord();
+            play528Hz(); // Reuse the same frequency or old harp chord
             setExtraStardust(true);
             setTimeout(() => {
                 setExtraStardust(false);
-            }, 3000); // Effect lasts for 3 seconds
+            }, 3000);
+        }
+    };
+
+    const handleMaterializeRitual = () => {
+        if (!activeJewel || activeJewel.id !== 'ametista') return;
+        
+        play528Hz();
+        setMaterializing(true);
+        setExtraStardust(true);
+
+        // Convergence effect: Particles move to center
+        // We simulate this by changing stardust settings for a few seconds
+        
+        setTimeout(() => {
+            setShowGuardian(true);
+            setMaterializing(false);
+            setExtraStardust(false);
+        }, 3000);
+    };
+
+    const handleAnchorIntention = () => {
+        setAnchoringFlash(true);
+        setTimeout(() => setAnchoringFlash(false), 1000);
+        
+        // Save materialized status
+        if (activeJewel) {
+            localStorage.setItem(`portal_materialized_${activeJewel.id}`, 'true');
+            if (intention) {
+                localStorage.setItem(`portal_intention_${activeJewel.id}`, intention);
+            }
+            
+            setJewelsState(prev => prev.map(j => 
+                j.id === activeJewel.id ? { ...j, materialized: true } : j
+            ));
+            setActiveJewel(prev => prev ? { ...prev, materialized: true } : null);
         }
     };
 
@@ -156,11 +184,14 @@ export default function MeuTesouroParticular() {
         // Check unlocks based on localStorage
         try {
             const stored = localStorage.getItem('portal_logs');
+            const isAmetistaUnlocked = localStorage.getItem('portal_ametista_unlocked') === 'true';
+            
+            // Initial load of materialized states
+            const getMaterialized = (id: string) => localStorage.getItem(`portal_materialized_${id}`) === 'true';
+
             if (stored) {
                 const logs = JSON.parse(stored);
                 const sombraCount = logs.filter((l: any) => l.type === 'Sombra' && !l.sosTriggered).length;
-                // Check ametista, trama and citrino
-                const isAmetistaUnlocked = localStorage.getItem('portal_ametista_unlocked') === 'true';
                 const isTramaUnlocked = localStorage.getItem('portal_trama_unlocked') === 'true';
                 const citrinoLogsCount = logs.filter((l: any) => l.type === 'Luz').length;
                 const isCitrinoUnlocked = localStorage.getItem('portal_citrino_unlocked') === 'true' || citrinoLogsCount >= 7;
@@ -182,33 +213,34 @@ export default function MeuTesouroParticular() {
                 });
 
                 setJewelsState(prev => prev.map(j => {
+                    const isMat = getMaterialized(j.id);
                     if (j.id === 'obsidiana-verdade') {
-                        return { ...j, unlocked: sombraCount >= 5 };
+                        return { ...j, unlocked: sombraCount >= 5, materialized: isMat };
                     }
                     if (j.id === 'turmalina') {
-                        return { ...j, unlocked: isTramaUnlocked };
+                        return { ...j, unlocked: isTramaUnlocked, materialized: isMat };
                     }
                     if (j.id === 'ametista') {
-                        return { ...j, unlocked: isAmetistaUnlocked };
+                        return { ...j, unlocked: isAmetistaUnlocked, materialized: isMat };
                     }
                     if (j.id === 'citrino') {
-                        return { ...j, unlocked: isCitrinoUnlocked };
+                        return { ...j, unlocked: isCitrinoUnlocked, materialized: isMat };
                     }
                     if (j.id === 'prisma-aceitacao') {
-                        return { ...j, unlocked: hasIntegration };
+                        return { ...j, unlocked: hasIntegration, materialized: isMat };
                     }
-                    return j;
+                    return { ...j, materialized: isMat };
                 }));
             } else {
-                const isAmetistaUnlocked = localStorage.getItem('portal_ametista_unlocked') === 'true';
                 const isTramaUnlocked = localStorage.getItem('portal_trama_unlocked') === 'true';
                 const isCitrinoUnlocked = localStorage.getItem('portal_citrino_unlocked') === 'true';
 
                 setJewelsState(prev => prev.map(j => {
-                    if (j.id === 'ametista') return { ...j, unlocked: isAmetistaUnlocked };
-                    if (j.id === 'turmalina') return { ...j, unlocked: isTramaUnlocked };
-                    if (j.id === 'citrino') return { ...j, unlocked: isCitrinoUnlocked };
-                    return j;
+                    const isMat = getMaterialized(j.id);
+                    if (j.id === 'ametista') return { ...j, unlocked: isAmetistaUnlocked, materialized: isMat };
+                    if (j.id === 'turmalina') return { ...j, unlocked: isTramaUnlocked, materialized: isMat };
+                    if (j.id === 'citrino') return { ...j, unlocked: isCitrinoUnlocked, materialized: isMat };
+                    return { ...j, materialized: isMat };
                 }));
             }
         } catch (e) { }
@@ -245,7 +277,7 @@ export default function MeuTesouroParticular() {
                             links: { enable: false },
                             move: {
                                 enable: true,
-                                speed: 0.3,
+                                speed: materializing ? 2 : 0.3,
                                 direction: "none",
                                 random: true,
                                 straight: false,
@@ -253,14 +285,14 @@ export default function MeuTesouroParticular() {
                             },
                             number: {
                                 density: { enable: false },
-                                value: extraStardust ? 120 : 40
+                                value: materializing ? 150 : (extraStardust ? 120 : 40)
                             },
                             opacity: {
-                                value: { min: 0.1, max: 0.4 }
+                                value: materializing ? { min: 0.4, max: 0.8 } : { min: 0.1, max: 0.4 }
                             },
                             shape: { type: "circle" },
                             size: {
-                                value: { min: 1, max: 2 }
+                                value: materializing ? { min: 2, max: 4 } : { min: 1, max: 2 }
                             }
                         },
                         interactivity: {
@@ -268,10 +300,15 @@ export default function MeuTesouroParticular() {
                             events: {
                                 onHover: {
                                     enable: true,
-                                    mode: "trail",
+                                    mode: materializing ? "attract" : "trail",
                                 }
                             },
                             modes: {
+                                attract: {
+                                    distance: 1000,
+                                    duration: 2,
+                                    speed: 5
+                                },
                                 trail: {
                                     delay: 0.1,
                                     pauseOnStop: true,
@@ -421,13 +458,31 @@ export default function MeuTesouroParticular() {
                                 <span className="text-xs text-[#F7E7CE] font-light">{activeJewel.unlockedCriteria}</span>
                             </div>
 
-                            <button className="flex items-center justify-center gap-3 w-full py-4 px-6 rounded-full bg-[#f7e7ce] text-[#301934] font-medium hover:bg-white hover:shadow-[0_0_20px_rgba(247,231,206,0.4)] transition-all group overflow-hidden relative">
-                                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
-                                <span className="relative z-10 flex items-center gap-2">
+                            {activeJewel.unlocked && !activeJewel.materialized && (
+                                <button 
+                                    onClick={handleMaterializeRitual}
+                                    disabled={materializing}
+                                    className={`flex items-center justify-center gap-3 w-full py-4 px-6 rounded-full bg-[#f7e7ce] text-[#301934] font-medium transition-all group overflow-hidden relative mt-4
+                                        ${materializing ? 'opacity-50 cursor-wait' : 'hover:bg-white hover:shadow-[0_0_20px_rgba(247,231,206,0.4)] animate-pulsing-glow'}
+                                    `}
+                                >
+                                    <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
+                                    <span className="relative z-10 flex items-center gap-2">
+                                        <Sparkles className={`w-4 h-4 ${materializing ? 'animate-spin' : ''}`} />
+                                        {materializing ? 'Iniciando Ritual...' : 'Materializar Permissão'}
+                                    </span>
+                                </button>
+                            )}
+
+                            {activeJewel.materialized && (
+                                <button 
+                                    onClick={() => setShowGuardian(true)}
+                                    className="flex items-center justify-center gap-3 w-full py-4 px-6 rounded-full bg-[#301934] text-[#f7e7ce] border border-[#f7e7ce]/30 font-medium hover:bg-black transition-all mt-4"
+                                >
                                     <Download className="w-4 h-4" />
-                                    Materializar Permissão
-                                </span>
-                            </button>
+                                    Ver Joia Materializada
+                                </button>
+                            )}
                         </>
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full opacity-40 text-sm">
@@ -437,6 +492,70 @@ export default function MeuTesouroParticular() {
                     )}
                 </div>
             </div>
+
+            {/* Materialization Guardian Card Modal */}
+            {showGuardian && activeJewel && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/90 backdrop-blur-xl animate-box-open">
+                    <button 
+                        onClick={() => setShowGuardian(false)}
+                        className="absolute top-6 right-6 text-[#f7e7ce]/70 hover:text-white transition-colors p-2 glass-panel"
+                    >
+                        <ChevronLeft className="w-6 h-6 rotate-90" />
+                    </button>
+
+                    <div className="w-full max-w-sm aspect-[9/16] relative glass-panel overflow-hidden border-[#f7e7ce]/30 flex flex-col items-center group">
+                        {/* Background Guardian Image */}
+                        <img 
+                            src="/assets/guardia-ametista.png" 
+                            alt="Guardiã da Ametista" 
+                            className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1518005020250-6eb5f3f2754d?auto=format&fit=crop&q=80&w=800'; // Fallback
+                            }}
+                        />
+                        
+                        {/* Overlay Content */}
+                        <div className="relative z-10 h-full w-full flex flex-col items-center justify-end p-8 text-center bg-gradient-to-t from-black via-transparent to-transparent">
+                            <h3 className="text-2xl font-serif text-[#f7e7ce] mb-2 luxury-text-glow">Guardiã do Início</h3>
+                            <p className="text-xs text-[#f7e7ce]/70 italic mb-8 uppercase tracking-widest">A Permissão foi Concedida</p>
+                            
+                            {/* Upload Area */}
+                            <div className="w-full space-y-4 mb-8">
+                                {!activeJewel.materialized ? (
+                                    <div className="space-y-3">
+                                        <textarea 
+                                            value={intention}
+                                            onChange={(e) => setIntention(e.target.value)}
+                                            placeholder="Registre sua intenção ou frase de poder aqui..."
+                                            className="w-full bg-black/40 border border-[#f7e7ce]/20 rounded-lg p-3 text-sm text-[#f7e7ce] placeholder:text-[#f7e7ce]/30 focus:outline-none focus:border-[#f7e7ce]/60 h-24 resize-none transition-colors"
+                                        />
+                                        <button 
+                                            onClick={handleAnchorIntention}
+                                            className="w-full py-3 bg-[#f7e7ce] text-[#301934] rounded-lg text-sm font-bold tracking-widest uppercase hover:bg-white transition-all shadow-[0_0_15px_rgba(247,231,206,0.3)]"
+                                        >
+                                            Ancorar Permissão
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="bg-white/5 backdrop-blur-md p-4 rounded-xl border border-[#f7e7ce]/20">
+                                        <p className="text-[10px] uppercase tracking-widest text-[#f7e7ce]/50 mb-2">Sua Intenção Ancorada</p>
+                                        <p className="text-sm text-white font-light italic">"{intention || localStorage.getItem(`portal_intention_${activeJewel.id}`) || 'A intenção foi selada.'}"</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {activeJewel.materialized && (
+                                <button className="flex items-center gap-2 text-[#f7e7ce] hover:text-white transition-colors text-xs font-medium uppercase tracking-[3px] border-b border-[#f7e7ce]/30 pb-1">
+                                    <Download className="w-3 h-3" />
+                                    Download Card
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {anchoringFlash && <div className="flash-anchor" />}
         </div>
     );
 }

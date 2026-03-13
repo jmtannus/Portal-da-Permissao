@@ -110,6 +110,33 @@
   }
 }
 
+@keyframes pulsing-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(247, 231, 206, 0.4);
+    border-color: rgba(247, 231, 206, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(247, 231, 206, 0.8);
+    border-color: rgba(247, 231, 206, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(247, 231, 206, 0.4);
+    border-color: rgba(247, 231, 206, 0.2);
+  }
+}
+
+@keyframes anchorFlash {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 @layer utilities {
   .preserve-3d {
     transform-style: preserve-3d;
