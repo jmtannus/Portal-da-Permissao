@@ -1,18 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    PlusCircle, 
-    Search, 
     ArrowLeft, 
     Flame, 
     Sun, 
-    Wind, 
-    ArrowUpRight, 
     ChevronDown, 
     Sparkles,
     Feather
 } from 'lucide-react';
-import Tooltip from './Tooltip';
 
 interface LogEntry {
     day: string;
@@ -93,7 +88,7 @@ export default function AcessoEscrita({ onBack, onSuccess }: AcessoEscritaProps)
 
     // Unlock States
     const [showConquistaSombra, setShowConquistaSombra] = useState(false);
-    const [isCitrinoUnlocked, setIsCitrinoUnlocked] = useState(false);
+    const [isCitrinoUnlockedJustNow, setIsCitrinoUnlockedJustNow] = useState(false);
 
     const textareaSombraRef = useRef<HTMLTextAreaElement>(null);
     const textareaLuzRef = useRef<HTMLTextAreaElement>(null);
@@ -151,9 +146,38 @@ export default function AcessoEscrita({ onBack, onSuccess }: AcessoEscritaProps)
         }
     };
 
+    const handleInspiration = (type: 'sombras' | 'luz') => {
+        const isSombra = type === 'sombras';
+        const inspirations = isSombra ? INSPIRATIONS_SOMBRA : INSPIRATIONS_LUZ;
+        const randomInsp = inspirations[Math.floor(Math.random() * inspirations.length)];
+        handleApplyIntention("ser/ter " + randomInsp + " ", type);
+    };
+
     const handleSave = (type: 'Luz' | 'Sombra') => {
         const text = type === 'Luz' ? textLuz : textSombra;
         if (!text.trim()) return;
+
+        // Trigger 528Hz Crystal Sound
+        try {
+            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+            const audioCtx = new AudioContext();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(528, audioCtx.currentTime); 
+            
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 3);
+        } catch (e) {
+            console.warn("Audio trigger failed:", e);
+        }
 
         if (type === 'Luz') setIsRadiating(true);
         else setIsBurning(true);
@@ -186,7 +210,7 @@ export default function AcessoEscrita({ onBack, onSuccess }: AcessoEscritaProps)
             const count = logs.filter((l: any) => l.type === 'Luz').length;
             if (count === 7) {
                 localStorage.setItem('portal_citrino_unlocked', 'true');
-                setIsCitrinoUnlocked(true);
+                setIsCitrinoUnlockedJustNow(true);
             }
         }
 
@@ -202,7 +226,7 @@ export default function AcessoEscrita({ onBack, onSuccess }: AcessoEscritaProps)
         const isProcessing = isSombra ? isBurning : isRadiating;
 
         return (
-            <div className={`flex-1 flex flex-col p-6 md:p-10 relative overflow-hidden transition-all duration-700 ${isSombra ? 'bg-[#1a0f1c]' : 'bg-[#FAF3E0]'} ${!isMobile && activeTab !== type && activeTab !== 'both' ? 'opacity-30 blur-sm scale-95 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex-1 flex flex-col p-6 md:p-10 relative overflow-hidden transition-all duration-700 ${isSombra ? 'bg-[#1a0f1c]' : 'bg-[#FAF3E0]'} ${!isMobile && activeTab !== type ? 'opacity-30 blur-sm scale-95 pointer-events-none' : 'opacity-100'}`}>
                 {/* Textures */}
                 <div className={`absolute inset-0 opacity-40 pointer-events-none ${isSombra ? "bg-[url('https://www.transparenttextures.com/patterns/black-felt.png')] mix-blend-multiply" : "bg-[url('https://www.transparenttextures.com/patterns/cream-dust.png')] mix-blend-overlay"}`}></div>
                 
@@ -239,6 +263,13 @@ export default function AcessoEscrita({ onBack, onSuccess }: AcessoEscritaProps)
                         </div>
                         <button onClick={() => handleApplyIntention("Eu sou ", type)} className={`px-4 py-2 rounded-full border text-[10px] md:text-xs font-medium uppercase tracking-wider transition-all ${isSombra ? 'border-[#d4af37]/40 text-[#d4af37] hover:bg-[#d4af37]/10' : 'border-[#301934]/40 text-[#301934] hover:bg-[#301934]/10'}`}>Identidade</button>
                         <button onClick={() => handleApplyIntention("Eu tenho ", type)} className={`px-4 py-2 rounded-full border text-[10px] md:text-xs font-medium uppercase tracking-wider transition-all ${isSombra ? 'border-[#d4af37]/40 text-[#d4af37] hover:bg-[#d4af37]/10' : 'border-[#301934]/40 text-[#301934] hover:bg-[#301934]/10'}`}>Recurso</button>
+                        <button
+                            onClick={() => handleInspiration(type)}
+                            className={`p-2 aspect-square rounded-full border transition-all flex items-center justify-center ${isSombra ? 'bg-[#301934] border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/20 shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-[#F7E7CE] border-white/50 text-[#301934] hover:bg-white/50 shadow-[0_0_15px_rgba(247,231,206,0.8)]'}`}
+                            title="Inspirar Intenção"
+                        >
+                            <Sparkles className="w-3 h-3" />
+                        </button>
                     </div>
 
                     {/* Textarea */}
@@ -255,8 +286,28 @@ export default function AcessoEscrita({ onBack, onSuccess }: AcessoEscritaProps)
                         {/* Status animations (Flame/Sun) */}
                         <AnimatePresence>
                             {isProcessing && (
-                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl pointer-events-none">
-                                    {isSombra ? <Flame className="w-12 h-12 text-[#d4af37] animate-pulse" /> : <Sun className="w-12 h-12 text-[#F7E7CE] animate-spin-slow" />}
+                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 backdrop-blur-md rounded-2xl pointer-events-none p-6 text-center">
+                                    {isSombra ? (
+                                        <>
+                                            <Flame className="w-12 h-12 text-[#d4af37] animate-pulse mb-4" />
+                                            {showConquistaSombra && (
+                                                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#301934] border border-[#d4af37]/30 p-4 rounded-xl shadow-2xl">
+                                                    <h4 className="text-[#F7E7CE] font-serif text-sm mb-1">A Obsidiana da Verdade</h4>
+                                                    <p className="text-[#F7E7CE]/70 text-[10px] italic">"Sua coragem em olhar para a verdade materializou uma nova virtude."</p>
+                                                </motion.div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sun className="w-12 h-12 text-[#F7E7CE] animate-spin-slow mb-4" />
+                                            {isCitrinoUnlockedJustNow && (
+                                                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white/10 border border-[#F7E7CE]/30 p-4 rounded-xl shadow-2xl">
+                                                    <h4 className="text-[#301934] font-serif text-sm mb-1">A Joia do Sorriso</h4>
+                                                    <p className="text-[#301934]/70 text-[10px] italic">"{userName}, seu brilho é o resultado da sua escolha constante."</p>
+                                                </motion.div>
+                                            )}
+                                        </>
+                                    )}
                                 </motion.div>
                             )}
                         </AnimatePresence>

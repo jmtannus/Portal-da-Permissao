@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, SkipForward, Upload, Heart, Settings2, Sparkles, Music } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Pause, SkipForward, Upload, Heart, Settings2, Sparkles, Music, ChevronUp, ChevronDown } from 'lucide-react';
 
 const TRACKS = [
     { title: 'The Resonance of Silence - Binaural Beats', src: 'https://cdn.pixabay.com/audio/2025/09/24/audio_b7e313e39e.mp3' },
@@ -27,6 +28,16 @@ export default function OasisEstelar({ onBack }: OasisEstelarProps) {
     const particlesRef = useRef<Particle[]>([]);
     const mouseRef = useRef({ x: -100, y: -100, isMoving: false });
 
+    // Responsive State
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     // Ritmo da Jornada settings
     const [particleType, setParticleType] = useState<'estrela' | 'poeira'>('estrela');
     const [expansion, setExpansion] = useState(2); // 1 to 5
@@ -43,9 +54,9 @@ export default function OasisEstelar({ onBack }: OasisEstelarProps) {
     });
     const [customAudioLabel, setCustomAudioLabel] = useState<string | null>(null);
     const [volume, setVolume] = useState(0.15); // 15% initial volume for peace
+    const [isVitrolaCollapsed, setIsVitrolaCollapsed] = useState(false);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const audioInputRef = useRef<HTMLInputElement>(null);
 
     // Track initialization
     useEffect(() => {
@@ -77,7 +88,12 @@ export default function OasisEstelar({ onBack }: OasisEstelarProps) {
         }
     }, [isPlaying, currentTrackIdx, volume]);
 
-    const togglePlay = () => setIsPlaying(!isPlaying);
+    const togglePlay = () => {
+        setIsPlaying(!isPlaying);
+        if (!isPlaying && isMobile) {
+            setIsVitrolaCollapsed(true);
+        }
+    };
 
     const nextTrack = () => {
         const next = (currentTrackIdx + 1) % TRACKS.length;
@@ -249,65 +265,121 @@ export default function OasisEstelar({ onBack }: OasisEstelarProps) {
                 </div>
 
                 {/* Vitrola da Alma (Bottom Left) */}
-                <div className="absolute bottom-8 left-8 pointer-events-auto">
-                    <div className="glass-panel bg-white/5 backdrop-blur-xl border border-[#F7E7CE]/20 p-5 rounded-3xl flex flex-col gap-5 shadow-[0_10px_40px_rgba(0,0,0,0.3)] w-80">
-
-                        {/* Track Info */}
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#301934] to-[#5F4B8B] flex items-center justify-center border border-[#F7E7CE]/30 shadow-inner relative overflow-hidden shrink-0">
-                                <Music className={`w-5 h-5 text-[#F7E7CE] absolute ${isPlaying ? 'animate-[spin_4s_linear_infinite]' : ''}`} />
-                            </div>
-                            <div className="flex flex-col text-left overflow-hidden">
-                                <span className="text-[10px] uppercase tracking-widest text-[#F7E7CE]/50 mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">Vitrola da Alma</span>
-                                <span className="text-[#F7E7CE] font-medium text-sm tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
-                                    {customAudioLabel ? customAudioLabel : TRACKS[currentTrackIdx].title}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Controls & Volume */}
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <button onClick={togglePlay} className="w-12 h-12 rounded-full bg-[#F7E7CE]/10 hover:bg-[#F7E7CE]/20 flex items-center justify-center text-[#F7E7CE] transition-colors border border-[#F7E7CE]/30 shadow-[0_4px_15px_rgba(247,231,206,0.1)]">
-                                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-1" />}
-                                </button>
-
-                                <button onClick={nextTrack} className="w-10 h-10 rounded-full flex items-center justify-center text-[#F7E7CE]/50 hover:text-[#F7E7CE] transition-colors hover:bg-white/5" title="Próxima Faixa" disabled={!!customAudioLabel}>
-                                    <SkipForward className={`w-5 h-5 ${customAudioLabel ? 'opacity-30 cursor-not-allowed' : ''}`} />
-                                </button>
-
-                                <button onClick={toggleFavorite} className="w-10 h-10 rounded-full flex items-center justify-center text-[#F7E7CE]/50 hover:text-[#F7E7CE] transition-colors hover:bg-white/5" title="Salvar Favorita">
-                                    <Heart className={`w-4 h-4 ${favoriteTrackIdx === currentTrackIdx ? 'fill-[#F7E7CE] text-[#F7E7CE]' : ''}`} />
-                                </button>
-                            </div>
-
-                            {/* Discrete Volume Control */}
-                            <div className="flex items-center gap-2 group px-2" title="Volume">
-                                <div className="text-[9px] uppercase tracking-widest text-[#F7E7CE]/50 select-none">Vol</div>
-                                <input
-                                    type="range" min="0" max="1" step="0.01" value={volume}
-                                    onChange={(e) => setVolume(parseFloat(e.target.value))}
-                                    className="w-16 h-1 bg-[#F7E7CE]/20 rounded-lg appearance-none cursor-pointer accent-[#F7E7CE]"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Upload Button */}
-                        <div className="pt-3 border-t border-[#F7E7CE]/10 mt-1">
-                            <label className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#F7E7CE]/5 hover:bg-[#F7E7CE]/10 text-[#F7E7CE]/80 hover:text-[#F7E7CE] text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer border border-transparent hover:border-[#F7E7CE]/20 shadow-sm" title="Escolher arquivo MP3">
-                                <Upload className="w-4 h-4" />
-                                <span>Sintonizar Minha Essência</span>
-                                <input type="file" accept="audio/mp3, audio/wav, audio/ogg" className="hidden" ref={audioInputRef} onChange={handleFileUpload} />
-                            </label>
-                        </div>
+                {/* Bottom Controls Group (Mobile: Stacks, Desktop: Corners) */}
+                <div className="absolute inset-x-0 bottom-0 p-6 md:p-8 flex flex-col md:flex-row items-end justify-between pointer-events-none z-30 gap-4">
+                    
+                    {/* Vitrola da Alma (Left or Bottom Center) */}
+                    <div className="w-full md:w-auto flex justify-center md:justify-start pointer-events-auto">
+                        <motion.div 
+                            layout
+                            initial={false}
+                            animate={{ 
+                                width: isMobile && isVitrolaCollapsed ? 'auto' : (isMobile ? '100%' : '20rem'),
+                                height: 'auto'
+                            }}
+                            className="glass-panel bg-white/5 backdrop-blur-2xl border border-[#F7E7CE]/20 rounded-3xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
+                        >
+                            <AnimatePresence mode="wait">
+                                {isMobile && isVitrolaCollapsed ? (
+                                    /* Mini Player Mobile */
+                                    <motion.div 
+                                        key="mini-player"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 10 }}
+                                        className="px-4 py-2 flex items-center gap-4 min-w-[200px]"
+                                        onClick={() => setIsVitrolaCollapsed(false)}
+                                    >
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#301934] to-[#5F4B8B] flex items-center justify-center shrink-0">
+                                            <Music className={`w-4 h-4 text-[#F7E7CE] ${isPlaying ? 'animate-[spin_4s_linear_infinite]' : ''}`} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[#F7E7CE] text-[10px] font-medium tracking-wide truncate">
+                                                {customAudioLabel || TRACKS[currentTrackIdx].title}
+                                            </p>
+                                        </div>
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); togglePlay(); }}
+                                            className="w-8 h-8 rounded-full bg-[#F7E7CE]/10 flex items-center justify-center text-[#F7E7CE]"
+                                        >
+                                            {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 ml-0.5" />}
+                                        </button>
+                                        <ChevronUp className="w-4 h-4 text-[#F7E7CE]/40" />
+                                    </motion.div>
+                                ) : (
+                                    /* Full Player */
+                                    <motion.div 
+                                        key="full-player"
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        className="p-5 flex flex-col gap-4"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-4 overflow-hidden">
+                                                <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#301934] to-[#5F4B8B] flex items-center justify-center border border-[#F7E7CE]/30 shadow-inner overflow-hidden shrink-0">
+                                                    <Music className={`w-5 h-5 text-[#F7E7CE] ${isPlaying ? 'animate-[spin_4s_linear_infinite]' : ''}`} />
+                                                </div>
+                                                <div className="flex flex-col text-left overflow-hidden">
+                                                    <span className="text-[9px] uppercase tracking-[0.2em] text-[#F7E7CE]/50 mb-0.5">Vitrola da Alma</span>
+                                                    <span className="text-[#F7E7CE] font-medium text-sm tracking-wide truncate">
+                                                        {customAudioLabel || TRACKS[currentTrackIdx].title}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {isMobile && (
+                                                <button 
+                                                    onClick={() => setIsVitrolaCollapsed(true)}
+                                                    className="p-2 text-[#F7E7CE]/40 hover:text-[#F7E7CE]"
+                                                >
+                                                    <ChevronDown className="w-5 h-5" />
+                                                </button>
+                                            )}
+                                        </div>
+ 
+                                        <div className="flex items-center justify-between gap-4">
+                                            <div className="flex items-center gap-2">
+                                                <button onClick={togglePlay} className="w-11 h-11 rounded-full bg-[#F7E7CE]/10 hover:bg-[#F7E7CE]/20 flex items-center justify-center text-[#F7E7CE] transition-all border border-[#F7E7CE]/20">
+                                                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+                                                </button>
+                                                <button onClick={nextTrack} className="w-9 h-9 rounded-full flex items-center justify-center text-[#F7E7CE]/50 hover:text-[#F7E7CE] transition-colors" title="Próxima Faixa" disabled={!!customAudioLabel}>
+                                                    <SkipForward className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={toggleFavorite} className="w-9 h-9 rounded-full flex items-center justify-center text-[#F7E7CE]/50 hover:text-[#F7E7CE] transition-colors" title="Salvar Favorita">
+                                                    <Heart className={`w-3.5 h-3.5 ${favoriteTrackIdx === currentTrackIdx ? 'fill-[#F7E7CE] text-[#F7E7CE]' : ''}`} />
+                                                </button>
+                                            </div>
+                                            <div className="flex flex-1 items-center gap-2">
+                                                <div className="text-[10px] text-[#F7E7CE]/40 font-serif italic">Vol</div>
+                                                <input
+                                                    type="range" min="0" max="1" step="0.01" value={volume}
+                                                    onChange={(e) => setVolume(parseFloat(e.target.value))}
+                                                    className="w-full h-1 bg-[#F7E7CE]/20 rounded-lg appearance-none cursor-pointer accent-[#F7E7CE]"
+                                                />
+                                            </div>
+                                        </div>
+ 
+                                        <label className="flex items-center justify-center gap-2 w-full py-2 bg-white/5 hover:bg-white/10 text-[#F7E7CE]/70 text-[10px] uppercase tracking-[0.2em] rounded-xl transition-all cursor-pointer border border-[#F7E7CE]/10">
+                                            <Upload className="w-3.5 h-3.5" />
+                                            <span>Sintonizar Essência</span>
+                                            <input type="file" accept="audio/*" className="hidden" onChange={handleFileUpload} />
+                                        </label>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
                     </div>
-                </div>
-
-                {/* Ritmo da Jornada Panel (Bottom Right) */}
-                <div className="absolute bottom-8 right-8 pointer-events-auto flex flex-col items-end gap-3 z-30">
-
-                    {/* Settings Panel Body */}
-                    <div className={`glass-panel border border-[#F7E7CE]/20 p-6 rounded-3xl transition-all duration-500 w-72 bg-[#301934]/70 backdrop-blur-2xl origin-bottom-right shadow-[0_10px_40px_rgba(0,0,0,0.4)] ${showRitmo ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 pointer-events-none translate-y-4 absolute bottom-full mb-4'}`}>
+ 
+                    {/* Ritmo da Jornada (Right or Top of Vitrola on Mobile) */}
+                    <div className="w-full md:w-auto flex flex-col items-center md:items-end pointer-events-none md:pointer-events-auto">
+                        <AnimatePresence>
+                            {showRitmo && (
+                                <motion.div 
+                                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                    className="glass-panel border border-[#F7E7CE]/20 p-6 rounded-3xl bg-[#301934]/80 backdrop-blur-2xl shadow-2xl w-full max-w-[280px] md:w-72 mb-4 pointer-events-auto"
+                                >
                         <div className="space-y-6">
                             <div>
                                 <div className="flex justify-between mb-2">
@@ -319,7 +391,7 @@ export default function OasisEstelar({ onBack }: OasisEstelarProps) {
                                     className="w-full h-1 bg-[#F7E7CE]/20 rounded-lg appearance-none cursor-pointer accent-[#F7E7CE]"
                                 />
                             </div>
-
+ 
                             <div>
                                 <div className="flex justify-between mb-2">
                                     <label className="text-[10px] tracking-widest uppercase text-[#F7E7CE]/70 block">Velocidade do Rastro</label>
@@ -330,7 +402,7 @@ export default function OasisEstelar({ onBack }: OasisEstelarProps) {
                                     className="w-full h-1 bg-[#F7E7CE]/20 rounded-lg appearance-none cursor-pointer accent-[#F7E7CE]"
                                 />
                             </div>
-
+ 
                             <div>
                                 <div className="flex justify-between mb-2">
                                     <label className="text-[10px] tracking-widest uppercase text-[#F7E7CE]/70 block">Intensidade do Brilho</label>
@@ -361,17 +433,23 @@ export default function OasisEstelar({ onBack }: OasisEstelarProps) {
                                 </div>
                             </div>
                         </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+ 
+                        <button
+                            onClick={() => {
+                                setShowRitmo(!showRitmo);
+                                if (!showRitmo && isMobile) {
+                                    setIsVitrolaCollapsed(true);
+                                }
+                            }}
+                            className={`pointer-events-auto glass-panel bg-white/5 backdrop-blur-xl border border-[#F7E7CE]/20 rounded-2xl p-4 flex items-center justify-center gap-3 text-[#F7E7CE]/70 hover:text-[#F7E7CE] transition-all hover:bg-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.2)] w-full md:w-auto`}
+                        >
+                            <Settings2 className="w-5 h-5" />
+                            <span className="text-[10px] md:text-xs tracking-[0.2em] uppercase font-bold">Ritmo da Jornada</span>
+                        </button>
                     </div>
-
-                    {/* Toggle Button */}
-                    <button
-                        onClick={() => setShowRitmo(!showRitmo)}
-                        className={`glass-panel bg-white/5 backdrop-blur-xl border border-[#F7E7CE]/20 rounded-2xl p-4 flex items-center gap-3 text-[#F7E7CE]/70 hover:text-[#F7E7CE] transition-all hover:bg-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.2)]`}
-                        title="Ritmo da Jornada"
-                    >
-                        <Settings2 className="w-5 h-5" />
-                        <span className="text-sm tracking-widest uppercase font-medium">Ritmo da Jornada</span>
-                    </button>
                 </div>
 
             </div>
