@@ -228,7 +228,7 @@ export default function AcessoEscrita({ onBack, onSuccess }: AcessoEscritaProps)
         return (
             <div 
                 onClick={() => !isMobile && activeTab !== type && setActiveTab(type)}
-                className={`flex-1 flex flex-col p-6 md:p-10 relative overflow-hidden transition-all duration-700 ${isSombra ? 'bg-[#1a0f1c]' : 'bg-[#FAF3E0]'} ${!isMobile && activeTab !== type ? 'opacity-40 blur-[2px] scale-[0.98] cursor-pointer' : 'opacity-100'}`}>
+                className={`flex-1 flex flex-col p-6 md:p-10 relative overflow-y-auto custom-scrollbar transition-all duration-700 ${isSombra ? 'bg-[#1a0f1c]' : 'bg-[#FAF3E0]'} ${!isMobile && activeTab !== type ? 'opacity-40 blur-[2px] scale-[0.98] cursor-pointer' : 'opacity-100'}`}>
                 {/* Textures */}
                 <div className={`absolute inset-0 opacity-40 pointer-events-none ${isSombra ? "bg-[url('https://www.transparenttextures.com/patterns/black-felt.png')] mix-blend-multiply" : "bg-[url('https://www.transparenttextures.com/patterns/cream-dust.png')] mix-blend-overlay"}`}></div>
                 
@@ -330,7 +330,7 @@ export default function AcessoEscrita({ onBack, onSuccess }: AcessoEscritaProps)
     };
 
     return (
-        <div className="fixed inset-0 w-full h-full z-[120] bg-black flex flex-col">
+        <div className="fixed inset-0 w-full h-full z-[120] bg-black flex flex-col md:pt-28 pt-20">
             
             {/* Unified Top Controls (Back & Nav) */}
             <div className="absolute top-0 inset-x-0 z-[150] h-20 px-4 md:px-12 flex items-center justify-between pointer-events-none">
@@ -394,8 +394,8 @@ export default function AcessoEscrita({ onBack, onSuccess }: AcessoEscritaProps)
             </div>
 
             {/* Decorative Label (Desktop Only) */}
-            <div className="hidden md:flex absolute bottom-8 left-0 right-0 justify-center z-50 pointer-events-none">
-                <h1 className="text-white/10 font-serif tracking-[1em] text-sm uppercase">Equilíbrio Sagrado</h1>
+            <div className="hidden md:flex absolute bottom-6 left-0 right-0 justify-center z-[150] pointer-events-none">
+                <h1 className="text-white/10 font-serif tracking-[1em] text-sm uppercase mb-4">Equilíbrio Sagrado</h1>
             </div>
         </div>
     );
