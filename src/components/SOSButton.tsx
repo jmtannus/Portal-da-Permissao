@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Volume2 } from 'lucide-react';
+import { Volume2, X } from 'lucide-react';
 import SOSParticles from './SOSParticles';
 
 // Random integration questions for the end of the pause
@@ -261,6 +261,15 @@ export default function SOSButton({ inNav = false }: { inNav?: boolean }) {
 
             {isActive && createPortal(
                 <div className="fixed inset-0 z-[9999] bg-[#301934]/95 backdrop-blur-3xl flex flex-col items-center justify-center text-center p-6 animate-in fade-in duration-1000">
+                    {/* Botão de Fechar Direto (Rota de Saída Segura) */}
+                    <button 
+                        onClick={() => setIsActive(false)}
+                        className="absolute top-6 right-6 md:top-8 md:right-8 p-2 text-[#F7E7CE]/70 hover:text-[#F7E7CE] hover:bg-white/5 rounded-full transition-all z-[10001]"
+                        aria-label="Sair da Pausa"
+                    >
+                        <X className="w-6 h-6 md:w-8 md:h-8" />
+                    </button>
+
                     {/* Render the Biofeedback Stardust Engine */}
                     <SOSParticles isActive={isActive} startTimeMs={startTimeRef.current} className="fixed inset-0 pointer-events-none z-[10000]" />
 
@@ -314,13 +323,13 @@ export default function SOSButton({ inNav = false }: { inNav?: boolean }) {
                                 </p>
                             </div>
 
-                            {seconds <= 10 && (
+                            {seconds <= 20 && (
                                 <button
                                     onClick={handleFinish}
-                                    className="px-8 py-3 rounded-full border border-[#F7E7CE]/40 text-[#F7E7CE] hover:bg-[#F7E7CE]/10 hover:border-[#F7E7CE] transition-all tracking-widest uppercase text-sm font-medium animate-in fade-in duration-1000 shadow-[0_0_20px_rgba(247,231,206,0.2)]"
+                                    className="w-full sm:w-auto px-8 py-4 rounded-full border border-[#F7E7CE]/40 text-[#F7E7CE] bg-[#F7E7CE]/5 hover:bg-[#F7E7CE]/10 hover:border-[#F7E7CE] transition-all tracking-widest uppercase text-sm font-medium animate-in fade-in duration-1000 shadow-[0_0_20px_rgba(247,231,206,0.1)]"
                                     translate="no"
                                 >
-                                    Voltar em Paz
+                                    Concluir e Retornar
                                 </button>
                             )}
                         </div>

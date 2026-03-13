@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 
 // Steps definition based// We accept userName to personalize Tour text
 export const getTourSteps = (userName: string = 'Janaína') => [
@@ -85,17 +85,26 @@ export default function WelcomeTour({ currentStep, onNext, onPrev, onClose }: We
                 <div className={`p-8 md:p-6 rounded-t-3xl md:rounded-3xl flex flex-col gap-5 md:gap-4 shadow-2xl border ${isNeuralStep ? 'bg-[#301934]/95 border-[#F7E7CE]/50 shadow-[#F7E7CE]/20 backdrop-blur-xl' : 'bg-[#1a0c1c]/95 border-[#d4af37]/30 shadow-black/80 backdrop-blur-xl'}`}>
 
                     {/* Header */}
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3 relative">
                         <span className={`text-[10px] md:text-xs font-bold tracking-widest ${isNeuralStep ? 'text-[#F7E7CE]' : 'text-[#d4af37]'}`}>
                             PASSO {currentStep} DE {steps.length}
                         </span>
-                        <div className="flex gap-1.5">
-                            {steps.map((s) => (
-                                <div
-                                    key={s.id}
-                                    className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-colors ${s.id === currentStep ? (isNeuralStep ? 'bg-[#F7E7CE]' : 'bg-[#d4af37]') : 'bg-white/10'}`}
-                                />
-                            ))}
+                        <div className="flex items-center gap-4">
+                            <div className="flex gap-1.5">
+                                {steps.map((s) => (
+                                    <div
+                                        key={s.id}
+                                        className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-colors ${s.id === currentStep ? (isNeuralStep ? 'bg-[#F7E7CE]' : 'bg-[#d4af37]') : 'bg-white/10'}`}
+                                    />
+                                ))}
+                            </div>
+                            <button 
+                                onClick={onClose}
+                                className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                                aria-label="Fechar Tour"
+                            >
+                                <X className="w-4 h-4 opacity-50 hover:opacity-100" />
+                            </button>
                         </div>
                     </div>
 

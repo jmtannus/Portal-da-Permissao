@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, Sparkles, ChevronLeft } from 'lucide-react';
+import { Download, Sparkles, X } from 'lucide-react';
 import EloDoRespiroCard from './Cards/EloDoRespiroCard';
 import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
@@ -583,9 +583,9 @@ export default function MeuTesouroParticular() {
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/90 backdrop-blur-xl animate-box-open">
                         <button 
                             onClick={() => setShowGuardian(false)}
-                            className="absolute top-6 right-6 text-[#f7e7ce]/70 hover:text-white transition-colors p-2 glass-panel"
+                            className="absolute top-6 right-6 text-[#f7e7ce]/70 hover:text-white transition-colors p-2 glass-panel z-50"
                         >
-                            <ChevronLeft className="w-6 h-6 rotate-90" />
+                            <X className="w-6 h-6" />
                         </button>
 
                     <div className={`w-full max-w-sm aspect-[9/16] relative glass-panel overflow-hidden border-[#f7e7ce]/30 flex flex-col items-center group ${activeJewel.id === 'prisma-aceitacao' ? 'animate-refraction' : ''}`}>

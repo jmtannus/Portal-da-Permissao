@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Download, ChevronLeft } from 'lucide-react';
+import { Download, X } from 'lucide-react';
 
 interface EloDoRespiroCardProps {
     onClose: () => void;
@@ -22,7 +22,7 @@ export default function EloDoRespiroCard({
                 onClick={onClose}
                 className="absolute top-6 right-6 text-[#f7e7ce]/70 hover:text-white transition-colors p-2 glass-panel z-[110]"
             >
-                <ChevronLeft className="w-6 h-6 rotate-90" />
+                <X className="w-6 h-6" />
             </button>
 
             <div className="w-full max-w-sm aspect-[9/16] relative glass-panel overflow-hidden border-[#f7e7ce]/30 flex flex-col items-center group shadow-[0_0_50px_rgba(0,0,0,0.8)]">
