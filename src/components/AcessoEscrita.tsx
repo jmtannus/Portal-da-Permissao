@@ -333,7 +333,7 @@ export default function AcessoEscrita({ onBack, onSuccess }: AcessoEscritaProps)
         <div className="fixed inset-0 w-full h-full z-[120] bg-black flex flex-col md:pt-28 pt-20">
             
             {/* Unified Top Controls (Back & Nav) */}
-            <div className="absolute top-0 inset-x-0 z-[150] h-20 px-4 md:px-12 flex items-center justify-between pointer-events-none">
+            <div className="absolute md:top-0 top-20 inset-x-0 z-[200] h-20 px-4 md:px-12 flex items-center justify-between pointer-events-none">
                 <button
                     onClick={onBack}
                     className="flex items-center gap-2 text-white/50 hover:text-white transition-colors glass-panel px-4 py-2 border-white/20 bg-black/40 backdrop-blur-xl pointer-events-auto group"
