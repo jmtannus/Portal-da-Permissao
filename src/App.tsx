@@ -196,7 +196,7 @@ function App() {
         ) : currentView === 'oasis' ? (
           <OasisEstelar onBack={() => setCurrentView('home')} />
         ) : currentView === 'escrita' ? (
-          <AcessoEscrita onBack={() => setCurrentView('home')} onSelect={(type) => setCurrentView(type)} />
+          <AcessoEscrita onBack={() => setCurrentView('home')} onSuccess={() => setCurrentView('espelho')} />
         ) : currentView === 'sombras' ? (
           <DiarioDeSombras onBack={() => setCurrentView('escrita')} onSuccess={() => setCurrentView('espelho')} />
         ) : (
