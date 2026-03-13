@@ -30,6 +30,7 @@ export default function TopNav({ currentView, setCurrentView }: TopNavProps) {
         { id: 'home', label: 'Início' },
         { id: 'espelho', label: 'Espelho da Alma' },
         { id: 'tesouro', label: 'Meu Tesouro' },
+        { id: 'nivel33', label: 'Nível 33' },
     ];
 
     const handleLinkClick = (id: string) => {

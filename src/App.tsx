@@ -10,9 +10,10 @@ import AcessoEscrita from './components/AcessoEscrita';
 import StarDustCursor from './components/StarDustCursor';
 import TopNav from './components/TopNav';
 import WelcomeTour, { getTourSteps } from './components/WelcomeTour';
+import Nivel33 from './components/Nivel33';
 
 function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'espelho' | 'tesouro' | 'oasis' | 'escrita' | 'sombras' | 'luz'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'espelho' | 'tesouro' | 'oasis' | 'escrita' | 'sombras' | 'luz' | 'nivel33'>('home');
   const [isTourActive, setIsTourActive] = useState(false);
   const [currentTourStep, setCurrentTourStep] = useState(1);
   const [isSolarMode, setIsSolarMode] = useState(false);
@@ -113,7 +114,7 @@ function App() {
       <StarDustCursor particleColor={stardustColor} attractTargetId={attractId} />
       <div className="absolute bottom-4 left-4 text-white/20 text-xs font-mono">v1.3.0 - Neural Engine</div>
 
-      {currentView !== 'home' && currentView !== 'oasis' && currentView !== 'sombras' && currentView !== 'luz' && currentView !== 'escrita' && (
+      {currentView !== 'home' && currentView !== 'oasis' && currentView !== 'sombras' && currentView !== 'luz' && currentView !== 'escrita' && currentView !== 'nivel33' && (
         <button
           onClick={() => setCurrentView('home')}
           className="absolute top-8 left-8 flex items-center gap-2 text-[#F7E7CE]/70 hover:text-[#F7E7CE] transition-colors z-50 group glass-panel px-4 py-2"
@@ -217,13 +218,15 @@ function App() {
           <AcessoEscrita onBack={() => setCurrentView('home')} onSuccess={() => setCurrentView('espelho')} />
         ) : currentView === 'sombras' ? (
           <DiarioDeSombras onBack={() => setCurrentView('escrita')} onSuccess={() => setCurrentView('espelho')} />
-        ) : (
+        ) : currentView === 'luz' ? (
           <DiarioDeLuz onBack={() => setCurrentView('escrita')} onSuccess={() => setCurrentView('espelho')} />
+        ) : (
+          <Nivel33 />
         )}
       </main>
 
       {/* Footer / Bottom minimalist decor */}
-      {currentView !== 'oasis' && currentView !== 'sombras' && currentView !== 'luz' && currentView !== 'escrita' && (
+      {currentView !== 'oasis' && currentView !== 'sombras' && currentView !== 'luz' && currentView !== 'escrita' && currentView !== 'nivel33' && (
         <footer className="mt-auto pt-16 pb-4 w-full flex flex-col items-center gap-3 z-10 relative">
           <p className="text-xs text-white/40 tracking-widest uppercase font-light pointer-events-none">
             Portal da Permissão
