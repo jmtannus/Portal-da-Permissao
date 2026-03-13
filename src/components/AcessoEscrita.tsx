@@ -226,7 +226,9 @@ export default function AcessoEscrita({ onBack, onSuccess }: AcessoEscritaProps)
         const isProcessing = isSombra ? isBurning : isRadiating;
 
         return (
-            <div className={`flex-1 flex flex-col p-6 md:p-10 relative overflow-hidden transition-all duration-700 ${isSombra ? 'bg-[#1a0f1c]' : 'bg-[#FAF3E0]'} ${!isMobile && activeTab !== type ? 'opacity-30 blur-sm scale-95 pointer-events-none' : 'opacity-100'}`}>
+            <div 
+                onClick={() => !isMobile && activeTab !== type && setActiveTab(type)}
+                className={`flex-1 flex flex-col p-6 md:p-10 relative overflow-hidden transition-all duration-700 ${isSombra ? 'bg-[#1a0f1c]' : 'bg-[#FAF3E0]'} ${!isMobile && activeTab !== type ? 'opacity-40 blur-[2px] scale-[0.98] cursor-pointer' : 'opacity-100'}`}>
                 {/* Textures */}
                 <div className={`absolute inset-0 opacity-40 pointer-events-none ${isSombra ? "bg-[url('https://www.transparenttextures.com/patterns/black-felt.png')] mix-blend-multiply" : "bg-[url('https://www.transparenttextures.com/patterns/cream-dust.png')] mix-blend-overlay"}`}></div>
                 
