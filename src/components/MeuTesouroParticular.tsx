@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Download, Sparkles, ChevronLeft } from 'lucide-react';
+import EloDoRespiroCard from './Cards/EloDoRespiroCard';
 import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
 
@@ -11,6 +12,8 @@ interface JewelDef {
     unlockedCriteria: string;
     unlocked: boolean;
     materialized?: boolean;
+    guardianImage?: string;
+    guardianTitle?: string;
     colorHex: string;
     gradient: string;
     isMultifaceted?: boolean;
@@ -25,6 +28,8 @@ const JEWELS: JewelDef[] = [
         description: 'O primeiro ato de liberdade é permitir-se descobrir o novo. Esta joia simboliza sua coragem em abrir as portas deste Portal e explorar as ferramentas que guiarão sua transformação.',
         unlockedCriteria: 'Completar o Tour de Boas-Vindas',
         unlocked: false, // Unlocked via Tour
+        guardianImage: '/assets/guardia-ametista.png',
+        guardianTitle: 'Guardiã do Início',
         colorHex: '#9B59B6',
         gradient: 'from-[#9B59B6] to-[#71368A]',
     },
@@ -35,6 +40,8 @@ const JEWELS: JewelDef[] = [
         description: 'No silêncio de uma pausa, o caos se ordena. Dominar o ímpeto do agir é encontrar a maestria sobre o próprio tempo.',
         unlockedCriteria: '5 usos do SOS Respiração',
         unlocked: true,
+        guardianImage: '/assets/guardia-elo-respiro.jpg',
+        guardianTitle: 'Guardiã do Fluxo',
         colorHex: '#2980B9',
         gradient: 'from-[#2980B9] to-[#1A5276]',
     },
@@ -45,6 +52,8 @@ const JEWELS: JewelDef[] = [
         description: 'O sorriso mais autêntico nasce da alma que se deu permissão para brilhar. Você sustentou sua frequência e agora o seu sol interno é inabalável.',
         unlockedCriteria: '7 registros de Luz',
         unlocked: false,
+        guardianImage: '/assets/guardia-brilho-sorriso.png',
+        guardianTitle: 'Guardiã do Sorriso',
         colorHex: '#F7E7CE',
         gradient: 'from-[#F7E7CE] to-[#D4AF37]',
     },
@@ -140,14 +149,12 @@ export default function MeuTesouroParticular() {
     };
 
     const handleMaterializeRitual = () => {
-        if (!activeJewel || activeJewel.id !== 'ametista') return;
+        if (!activeJewel) return;
+        if (activeJewel.id !== 'ametista' && activeJewel.id !== 'citrino' && activeJewel.id !== 'safira') return;
         
         play528Hz();
         setMaterializing(true);
         setExtraStardust(true);
-
-        // Convergence effect: Particles move to center
-        // We simulate this by changing stardust settings for a few seconds
         
         setTimeout(() => {
             setShowGuardian(true);
@@ -173,6 +180,15 @@ export default function MeuTesouroParticular() {
             setActiveJewel(prev => prev ? { ...prev, materialized: true } : null);
         }
     };
+
+    useEffect(() => {
+        if (showGuardian && activeJewel) {
+            const saved = localStorage.getItem(`portal_intention_${activeJewel.id}`);
+            if (saved) setIntention(saved);
+        } else if (!showGuardian) {
+            setIntention('');
+        }
+    }, [showGuardian, activeJewel]);
 
     useEffect(() => {
         initParticlesEngine(async (engine: any) => {
@@ -495,19 +511,28 @@ export default function MeuTesouroParticular() {
 
             {/* Materialization Guardian Card Modal */}
             {showGuardian && activeJewel && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/90 backdrop-blur-xl animate-box-open">
-                    <button 
-                        onClick={() => setShowGuardian(false)}
-                        className="absolute top-6 right-6 text-[#f7e7ce]/70 hover:text-white transition-colors p-2 glass-panel"
-                    >
-                        <ChevronLeft className="w-6 h-6 rotate-90" />
-                    </button>
+                activeJewel.id === 'safira' ? (
+                    <EloDoRespiroCard 
+                        onClose={() => setShowGuardian(false)}
+                        intention={intention}
+                        setIntention={setIntention}
+                        onAnchor={handleAnchorIntention}
+                        isMaterialized={!!activeJewel.materialized}
+                    />
+                ) : (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/90 backdrop-blur-xl animate-box-open">
+                        <button 
+                            onClick={() => setShowGuardian(false)}
+                            className="absolute top-6 right-6 text-[#f7e7ce]/70 hover:text-white transition-colors p-2 glass-panel"
+                        >
+                            <ChevronLeft className="w-6 h-6 rotate-90" />
+                        </button>
 
                     <div className="w-full max-w-sm aspect-[9/16] relative glass-panel overflow-hidden border-[#f7e7ce]/30 flex flex-col items-center group">
                         {/* Background Guardian Image */}
                         <img 
-                            src="/assets/guardia-ametista.png" 
-                            alt="Guardiã da Ametista" 
+                            src={activeJewel.guardianImage || "/assets/guardia-ametista.png"} 
+                            alt={activeJewel.guardianTitle || "Guardiã"} 
                             className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
                             onError={(e) => {
                                 (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1518005020250-6eb5f3f2754d?auto=format&fit=crop&q=80&w=800'; // Fallback
@@ -516,7 +541,7 @@ export default function MeuTesouroParticular() {
                         
                         {/* Overlay Content */}
                         <div className="relative z-10 h-full w-full flex flex-col items-center justify-end p-8 text-center bg-gradient-to-t from-black via-transparent to-transparent">
-                            <h3 className="text-2xl font-serif text-[#f7e7ce] mb-2 luxury-text-glow">Guardiã do Início</h3>
+                            <h3 className="text-2xl font-serif text-[#f7e7ce] mb-2 luxury-text-glow">{activeJewel.guardianTitle || "Guardiã"}</h3>
                             <p className="text-xs text-[#f7e7ce]/70 italic mb-8 uppercase tracking-widest">A Permissão foi Concedida</p>
                             
                             {/* Upload Area */}
@@ -553,6 +578,7 @@ export default function MeuTesouroParticular() {
                         </div>
                     </div>
                 </div>
+                )
             )}
 
             {anchoringFlash && <div className="flash-anchor" />}
