@@ -3,6 +3,7 @@ import { Download, Sparkles, X } from 'lucide-react';
 import EloDoRespiroCard from './Cards/EloDoRespiroCard';
 import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
+import Tooltip from './Tooltip';
 
 interface JewelDef {
     id: string;
@@ -433,78 +434,83 @@ export default function MeuTesouroParticular() {
 
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 relative z-10">
                         {jewelsState.map((jewel, index) => (
-                            <button
+                            <Tooltip 
                                 key={jewel.id}
-                                onClick={() => handleJewelClick(jewel)}
-                                className={`flex flex-col items-center group perspective-1000 animate-jewel-reveal ${!jewel.unlocked ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-                                style={{ animationDelay: `${(index * 0.15) + 0.5}s` }}
+                                content={jewel.unlockedCriteria}
+                                disabled={jewel.unlocked}
                             >
-                                {/* The Niche */}
-                                <div className={`w-24 h-24 md:w-32 md:h-32 rounded-full mb-4 flex items-center justify-center relative transition-all duration-700 preserve-3d
-                  ${activeJewel?.id === jewel.id ? 'scale-110 shadow-[0_0_40px_rgba(247,231,206,0.2)]' : ''}
-                  ${activeJewel?.id === 'citrino' && jewel.id !== 'citrino' ? 'shadow-[0_0_30px_rgba(247,231,206,0.15)] bg-black/10' : ''}
-                  ${jewel.unlocked ? 'bg-black/40 shadow-[inset_0_-10px_20px_rgba(0,0,0,0.8),inset_0_2px_10px_rgba(255,255,255,0.05)]' : 'bg-black/20'}
-                `}>
+                                <button
+                                    onClick={() => handleJewelClick(jewel)}
+                                    className={`flex flex-col items-center group perspective-1000 animate-jewel-reveal ${!jewel.unlocked ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                                    style={{ animationDelay: `${(index * 0.15) + 0.5}s` }}
+                                >
+                                    {/* The Niche */}
+                                    <div className={`w-24 h-24 md:w-32 md:h-32 rounded-full mb-4 flex items-center justify-center relative transition-all duration-700 preserve-3d
+                    ${activeJewel?.id === jewel.id ? 'scale-110 shadow-[0_0_40px_rgba(247,231,206,0.2)]' : ''}
+                    ${activeJewel?.id === 'citrino' && jewel.id !== 'citrino' ? 'shadow-[0_0_30px_rgba(247,231,206,0.15)] bg-black/10' : ''}
+                    ${jewel.unlocked ? 'bg-black/40 shadow-[inset_0_-10px_20px_rgba(0,0,0,0.8),inset_0_2px_10px_rgba(255,255,255,0.05)]' : 'bg-black/20'}
+                    `}>
 
-                                    {/* The Jewel Itself */}
-                                    <div className={`absolute w-12 h-12 md:w-16 md:h-16 rounded-lg rotate-45 transition-all duration-700 flex items-center justify-center
-                    ${jewel.unlocked ? `bg-gradient-to-br ${jewel.gradient} shadow-[inset_2px_2px_4px_rgba(255,255,255,0.4)]` : 'bg-white/10 grayscale opacity-30 shadow-none'}
-                    ${activeJewel?.id === jewel.id ? 'rotate-[-315deg] scale-125' : 'group-hover:rotate-[135deg]'}
-                  `}
-                                        style={jewel.unlocked ? { filter: `drop-shadow(0 0 15px ${jewel.colorHex}80)` } : {}}
-                                    >
-                                        {/* Fake facets for 3D look inside the jewel */}
-                                        {jewel.unlocked && !jewel.isTramaAmulet && (
-                                            <div className="absolute inset-1 border border-white/30 rounded-sm"></div>
-                                        )}
+                                        {/* The Jewel Itself */}
+                                        <div className={`absolute w-12 h-12 md:w-16 md:h-16 rounded-lg rotate-45 transition-all duration-700 flex items-center justify-center
+                        ${jewel.unlocked ? `bg-gradient-to-br ${jewel.gradient} shadow-[inset_2px_2px_4px_rgba(255,255,255,0.4)]` : 'bg-white/10 grayscale opacity-30 shadow-none'}
+                        ${activeJewel?.id === jewel.id ? 'rotate-[-315deg] scale-125' : 'group-hover:rotate-[135deg]'}
+                    `}
+                                            style={jewel.unlocked ? { filter: `drop-shadow(0 0 15px ${jewel.colorHex}80)` } : {}}
+                                        >
+                                            {/* Fake facets for 3D look inside the jewel */}
+                                            {jewel.unlocked && !jewel.isTramaAmulet && (
+                                                <div className="absolute inset-1 border border-white/30 rounded-sm"></div>
+                                            )}
 
-                                        {/* A Trama da Mudança Custom Amulet */}
-                                        {jewel.unlocked && jewel.isTramaAmulet && (
-                                            <div className="absolute inset-0 flex items-center justify-center -rotate-45" style={{ filter: 'drop-shadow(0px 0px 5px rgba(212,175,55,0.8))' }}>
-                                                <svg viewBox="0 0 100 100" className="w-[120%] h-[120%] opacity-90 relative z-20">
-                                                    <defs>
-                                                        <linearGradient id="goldSilk" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                            <stop offset="0%" stopColor="#F7E7CE" />
-                                                            <stop offset="50%" stopColor="#D4AF37" />
-                                                            <stop offset="100%" stopColor="#996515" />
-                                                        </linearGradient>
-                                                        <filter id="glow">
-                                                            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                                                            <feMerge>
-                                                                <feMergeNode in="coloredBlur" />
-                                                                <feMergeNode in="SourceGraphic" />
-                                                            </feMerge>
-                                                        </filter>
-                                                    </defs>
-                                                    {/* Obsidiana Base */}
-                                                    <circle cx="50" cy="50" r="38" fill="url(#goldSilk)" opacity="0.1" />
-                                                    <circle cx="50" cy="50" r="35" fill="#1a0f1c" stroke="#301934" strokeWidth="2" />
-                                                    {/* Silk Threads */}
-                                                    <path d="M 15 50 Q 50 20, 85 50 T 15 50" fill="none" stroke="url(#goldSilk)" strokeWidth="2" filter="url(#glow)" />
-                                                    <path d="M 50 15 Q 80 50, 50 85 T 50 15" fill="none" stroke="url(#goldSilk)" strokeWidth="2" filter="url(#glow)" />
-                                                    <path d="M 25 25 Q 75 25, 75 75" fill="none" stroke="url(#goldSilk)" strokeWidth="1.5" filter="url(#glow)" />
-                                                    <path d="M 25 75 Q 75 75, 75 25" fill="none" stroke="url(#goldSilk)" strokeWidth="1.5" filter="url(#glow)" />
-                                                </svg>
+                                            {/* A Trama da Mudança Custom Amulet */}
+                                            {jewel.unlocked && jewel.isTramaAmulet && (
+                                                <div className="absolute inset-0 flex items-center justify-center -rotate-45" style={{ filter: 'drop-shadow(0px 0px 5px rgba(212,175,55,0.8))' }}>
+                                                    <svg viewBox="0 0 100 100" className="w-[120%] h-[120%] opacity-90 relative z-20">
+                                                        <defs>
+                                                            <linearGradient id="goldSilk" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                                <stop offset="0%" stopColor="#F7E7CE" />
+                                                                <stop offset="50%" stopColor="#D4AF37" />
+                                                                <stop offset="100%" stopColor="#996515" />
+                                                            </linearGradient>
+                                                            <filter id="glow">
+                                                                <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                                                                <feMerge>
+                                                                    <feMergeNode in="coloredBlur" />
+                                                                    <feMergeNode in="SourceGraphic" />
+                                                                </feMerge>
+                                                            </filter>
+                                                        </defs>
+                                                        {/* Obsidiana Base */}
+                                                        <circle cx="50" cy="50" r="38" fill="url(#goldSilk)" opacity="0.1" />
+                                                        <circle cx="50" cy="50" r="35" fill="#1a0f1c" stroke="#301934" strokeWidth="2" />
+                                                        {/* Silk Threads */}
+                                                        <path d="M 15 50 Q 50 20, 85 50 T 15 50" fill="none" stroke="url(#goldSilk)" strokeWidth="2" filter="url(#glow)" />
+                                                        <path d="M 50 15 Q 80 50, 50 85 T 50 15" fill="none" stroke="url(#goldSilk)" strokeWidth="2" filter="url(#glow)" />
+                                                        <path d="M 25 25 Q 75 25, 75 75" fill="none" stroke="url(#goldSilk)" strokeWidth="1.5" filter="url(#glow)" />
+                                                        <path d="M 25 75 Q 75 75, 75 25" fill="none" stroke="url(#goldSilk)" strokeWidth="1.5" filter="url(#glow)" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Sparkle Particles Layer (Glow) */}
+                                        {jewel.unlocked && isFullyOpened && (
+                                            <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-1000 ${activeJewel?.id === jewel.id ? 'opacity-100' : 'opacity-20 group-hover:opacity-60'}`}>
+                                                <Sparkles className={`w-full h-full text-[#f7e7ce] ${activeJewel?.id === jewel.id ? 'animate-pulse' : ''}`} strokeWidth={0.5} />
                                             </div>
                                         )}
                                     </div>
 
-                                    {/* Sparkle Particles Layer (Glow) */}
-                                    {jewel.unlocked && isFullyOpened && (
-                                        <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-1000 ${activeJewel?.id === jewel.id ? 'opacity-100' : 'opacity-20 group-hover:opacity-60'}`}>
-                                            <Sparkles className={`w-full h-full text-[#f7e7ce] ${activeJewel?.id === jewel.id ? 'animate-pulse' : ''}`} strokeWidth={0.5} />
-                                        </div>
+                                    <span className="text-sm font-medium tracking-wide text-white/80 group-hover:text-white transition-colors">
+                                        {jewel.name}
+                                    </span>
+
+                                    {!jewel.unlocked && (
+                                        <span className="text-[10px] uppercase tracking-widest text-[#f7e7ce]/40 mt-1">Trancado</span>
                                     )}
-                                </div>
-
-                                <span className="text-sm font-medium tracking-wide text-white/80 group-hover:text-white transition-colors">
-                                    {jewel.name}
-                                </span>
-
-                                {!jewel.unlocked && (
-                                    <span className="text-[10px] uppercase tracking-widest text-[#f7e7ce]/40 mt-1">Trancado</span>
-                                )}
-                            </button>
+                                </button>
+                            </Tooltip>
                         ))}
                     </div>
                 </div>
