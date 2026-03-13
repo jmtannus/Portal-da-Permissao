@@ -1,0 +1,25 @@
+# Planejamento: Sincronia Estelar S.O.S (Biofeedback Completo)
+
+O objetivo é criar a "dança matemática" entre o ciclo de respiração, o áudio 528Hz e a poeira estelar durante a Pausa Sagrada.
+
+## 1. Módulo de Partículas (SOSParticles.tsx)
+
+Embora o *tsparticles* seja excelente para emissores estáticos, a exigência de uma transição `easeInOutSine` milimétrica sincronizada com o cronômetro sugere a criação de um motor Canvas nativo (como fizemos pro cursor), que lê exatamente os segundos e interpola a tração.
+
+**Comportamento Matemático por Fase (16s cycle):**
+- **Inspirar (0-4s)**: Atração suave para o centro da tela (x: 50%, y: 50%) usando `easeInOutSine`. As órbitas diminuem o raio.
+- **Reter (4-8s)**: As partículas entram em `orbit` estática, rodando ao redor do centro com brilho dourado sólido.
+- **Expirar (8-12s)**: Repulsão paramétrica. O raio da órbita se expande suavemente, dissipando de volta para os cantos da tela.
+- **Vazio (12-16s)**: Perda de tração polar. Partículas flutuam levemente pelo cenário até o próximo ciclo iniciar.
+
+## 2. Pulsação Sonora (Audio Biofeedback)
+Em [SOSButton.tsx](file:///c:/Users/manutencao/Desktop/PORTAL%20DA%20PERMISSAO/src/components/SOSButton.tsx), atrelaremos o `audioRef.current.volume` ao mesmo ciclo matemático.
+- O volume base inicial é `0.15` (15%).
+- Durante a **Inspiração**, o volume fará um *ramp up* usando matemática sinusoidal até, por exemplo, `0.40`.
+- Na **Retenção**, ele se mantém.
+- Na **Expiração**, ele desvanece de volta aos `0.15`.
+- Isso espelhará perfeitamente o crescimento da "Bola de Luz".
+
+## User Review Required
+> [!CAUTION] 
+> O Senhor prefere que eu force o uso da biblioteca `tsparticles` (usando gambiarras de simulação de mouse no centro para o attract/repulse), ou aprova a construção desse motor Canvas nativo `SOSParticles.tsx` ultra-matemático? O motor nativo garante 100% de fluidez `easeInOutSine` sem o peso de re-renderizações da biblioteca de terceiros.

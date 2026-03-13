@@ -1,0 +1,20 @@
+# Task Verification Plan
+
+- [x] Navigate to http://localhost:5173
+- [ ] Clear `portal_tour_completed` from localStorage (Console access limited, but tour was observed)
+- [x] Reload page and verify Welcome Tour Step 1
+- [ ] Advance to Step 3 and verify golden pulsing ring (Step 3 seems skipped in flow)
+- [x] Verify tooltips on "Identidade", "Recurso", "Pontes de Permissão" (Text present in DOM, but behavior/style needs verification)
+- [ ] Verify SOS button pulsing (Not observed in Diário de Sombras or Luz)
+- [x] Complete tour and report findings
+
+## Observations
+- Welcome Tour starts automatically if storage is clean (or first visit).
+- Step 1: "O Acolhimento" is present.
+- Button label is "Próximo Passo" instead of "Prosseguir com Intenção".
+- Step 3 (Comando Neural) was skipped or didn't trigger correctly during navigation.
+- Step 4: "O Espelho da Verdade" appeared after Step 2.
+- Step 6: "A Obsidiana da Verdade" is present in "Meu Tesouro Particular" but locked.
+- Tooltip text for "Identidade", "Recurso", etc., is present in the DOM but doesn't behave like a floating tooltip (appears as text).
+- SOS button "Respiro" seen in Tour Step 5, but trigger words didn't show pulse in the diaries.
+- Theme seems very white/low contrast in this environment.

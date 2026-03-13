@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+:root {
+  --color-deep-purple: #301934;
+  --color-ultra-violet: #5F4B8B;
+  --color-champagne: #F7E7CE;
+  --font-sans: 'Inter', sans-serif;
+  --animate-breathing: breathing 12s ease-in-out infinite;
+  --animate-breathing-square: breathing-square 16s linear infinite;
+  --animate-spin-slow: spin 8s linear infinite;
+}
+
+@keyframes breathing {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  33.33%,
+  66.66% {
+    transform: scale(3.5);
+  }
+}
+
+@keyframes breathing-square {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(247, 231, 206, 0.2);
+    opacity: 0.5;
+    animation-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
+  }
+
+  25% {
+    transform: scale(1.5);
+    box-shadow: 0 0 80px rgba(247, 231, 206, 0.8), inset 0 0 30px rgba(255, 255, 255, 0.6);
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+
+  37.5% {
+    transform: scale(1.52);
+    box-shadow: 0 0 100px rgba(247, 231, 206, 1), inset 0 0 40px rgba(255, 255, 255, 0.8);
+    opacity: 0.85;
+    animation-timing-function: ease-in-out;
+  }
+
+  50% {
+    transform: scale(1.5);
+    box-shadow: 0 0 80px rgba(247, 231, 206, 0.8), inset 0 0 30px rgba(255, 255, 255, 0.6);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
+  }
+
+  75% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(247, 231, 206, 0.2);
+    opacity: 0.5;
+    animation-timing-function: linear;
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(247, 231, 206, 0.2);
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes tourPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(247, 231, 206, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 15px rgba(247, 231, 206, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(247, 231, 206, 0);
+  }
+}
+
+@keyframes boxOpening {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes jewelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  body.drawer-open .drawer-shift {
+    right: 432px !important;
+  }
+
+  .hover-seda {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(247, 231, 206, 0.1);
+  }
+
+  .hover-seda:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 40px rgba(247, 231, 206, 0.2);
+    border-color: rgba(247, 231, 206, 0.5);
+  }
+}
+
+@layer base {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Uso seguro de variáveis para o build */
+    color: #f7e7ce;
+    background:
+      linear-gradient(rgba(48, 25, 52, 0.7), rgba(95, 75, 139, 0.7)),
+      url('https://www.transparenttextures.com/patterns/silk-weave.png'),
+      linear-gradient(to bottom, var(--color-deep-purple), var(--color-ultra-violet));
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+  }
+
+  .luxury-text-glow {
+    text-shadow: 0 0 20px rgba(247, 231, 206, 0.2);
+  }
+
+  /* Tour Highlights */
+  .is-tour-step-3 .neural-command-area,
+  .is-tour-step-5 .sos-button-area {
+    outline: 2px solid rgba(247, 231, 206, 0.8);
+    outline-offset: 8px;
+    background-color: rgba(247, 231, 206, 0.05);
+    animation: tourPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-box-open {
+    animation: boxOpening 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .animate-jewel-reveal {
+    opacity: 0;
+    animation: jewelFadeIn 0.8s ease-out forwards;
+  }
+}

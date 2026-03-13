@@ -1,0 +1,175 @@
+﻿
+> portal-da-permissao@0.0.0 build
+> tsc -b && vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+node.exe : Error: 
+Cannot apply unknown 
+utility class 
+`text-#F7E7CE`. Are 
+you using CSS modules 
+or similar and missing 
+`@reference`? https://t
+ailwindcss.com/docs/fun
+ctions-and-directives#r
+eference-directive
+No C:\Program Files\nod
+ejs\npm.ps1:29 
+caractere:3
++   & $NODE_EXE 
+$NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (Error: Cannot   
+  a...rence-directi    
+ve:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+    at 
+onInvalidCandidate (C:\
+Users\manutencao\Deskto
+p\PORTAL DA PERMISSAO\n
+ode_modules\tailwindcss
+\dist\lib.js:21:1314)
+    at Ee (C:\Users\man
+utencao\Desktop\PORTAL 
+DA PERMISSAO\node_modul
+es\tailwindcss\dist\lib
+.js:16:37066)
+    at C:\Users\manuten
+cao\Desktop\PORTAL DA P
+ERMISSAO\node_modules\t
+ailwindcss\dist\lib.js:
+21:355
+    at Pr (C:\Users\man
+utencao\Desktop\PORTAL 
+DA PERMISSAO\node_modul
+es\tailwindcss\dist\lib
+.js:3:1733)
+    at _ (C:\Users\manu
+tencao\Desktop\PORTAL 
+DA PERMISSAO\node_modul
+es\tailwindcss\dist\lib
+.js:3:1377)
+    at Te (C:\Users\man
+utencao\Desktop\PORTAL 
+DA PERMISSAO\node_modul
+es\tailwindcss\dist\lib
+.js:21:172)
+    at pn (C:\Users\man
+utencao\Desktop\PORTAL 
+DA PERMISSAO\node_modul
+es\tailwindcss\dist\lib
+.js:38:294)
+    at async dn (C:\Use
+rs\manutencao\Desktop\P
+ORTAL DA PERMISSAO\node
+_modules\tailwindcss\di
+st\lib.js:38:631)
+    at async Xr (C:\Use
+rs\manutencao\Desktop\P
+ORTAL DA PERMISSAO\node
+_modules\@tailwindcss\n
+ode\dist\index.js:10:34
+17)
+    at async N (C:\User
+s\manutencao\Desktop\PO
+RTAL DA PERMISSAO\node_
+modules\@tailwindcss\po
+stcss\dist\index.js:10:
+3979)
+[32mÔ£ô[39m 9 modules transformed.
+[31mÔ£ù[39m Build 
+failed in 249ms
+[31merror during 
+build:
+[31m[vite:css] 
+[postcss] tailwindcss: 
+C:/Users/manutencao/Des
+ktop/PORTAL DA PERMISSA
+O/src/index.css:1:1: 
+Cannot apply unknown 
+utility class 
+`text-#F7E7CE`. Are 
+you using CSS modules 
+or similar and missing 
+`@reference`? https://t
+ailwindcss.com/docs/fun
+ctions-and-directives#r
+eference-directive[31m
+file: [36mC:/Users/man
+utencao/Desktop/PORTAL 
+DA PERMISSAO/src/index.
+css:1:0[31m
+    at Input.error (C:\
+Users\manutencao\Deskto
+p\PORTAL DA PERMISSAO\n
+ode_modules\postcss\lib
+\input.js:135:16)
+    at Root.error (C:\U
+sers\manutencao\Desktop
+\PORTAL DA PERMISSAO\no
+de_modules\postcss\lib\
+node.js:146:32)
+    at Object.Once (C:\
+Users\manutencao\Deskto
+p\PORTAL DA PERMISSAO\n
+ode_modules\@tailwindcs
+s\postcss\dist\index.js
+:10:6913)
+    at async 
+LazyResult.runAsync (C:
+\Users\manutencao\Deskt
+op\PORTAL DA PERMISSAO\
+node_modules\postcss\li
+b\lazy-result.js:293:11
+)
+    at async 
+runPostCSS (file:///C:/
+Users/manutencao/Deskto
+p/PORTAL%20DA%20PERMISS
+AO/node_modules/vite/di
+st/node/chunks/config.j
+s:30145:19)
+    at async 
+compilePostCSS (file://
+/C:/Users/manutencao/De
+sktop/PORTAL%20DA%20PER
+MISSAO/node_modules/vit
+e/dist/node/chunks/conf
+ig.js:30129:6)
+    at async 
+compileCSS (file:///C:/
+Users/manutencao/Deskto
+p/PORTAL%20DA%20PERMISS
+AO/node_modules/vite/di
+st/node/chunks/config.j
+s:30059:26)
+    at async 
+Object.handler (file://
+/C:/Users/manutencao/De
+sktop/PORTAL%20DA%20PER
+MISSAO/node_modules/vit
+e/dist/node/chunks/conf
+ig.js:29592:54)
+    at async transform 
+(file:///C:/Users/manut
+encao/Desktop/PORTAL%20
+DA%20PERMISSAO/node_mod
+ules/rollup/dist/es/sha
+red/node-entry.js:21269
+:16)
+    at async ModuleLoad
+er.addModuleSource (fil
+e:///C:/Users/manutenca
+o/Desktop/PORTAL%20DA%2
+0PERMISSAO/node_modules
+/rollup/dist/es/shared/
+node-entry.js:21497:36)
+[39m

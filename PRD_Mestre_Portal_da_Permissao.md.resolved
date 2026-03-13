@@ -1,0 +1,39 @@
+# PRD Mestre: Portal da Permissão
+
+## 1. Identidade e Atmosfera (Moodboard Técnico)
+*   **Conceito:** Deep Luxury e Autoconhecimento Profundo.
+*   **Paleta de Cores:** Gradientes de Ultra Violeta para Roxo Profundo; detalhes em Champagne Gold (`#F7E7CE`).
+*   **Texturas Visuais:** Efeitos de Seda Selvagem, Linho e Vidro Transparente (*Glassmorphism*) com `backdrop-blur-2xl`.
+
+## 2. Arquitetura de Funcionalidades (O Ecossistema)
+*   **Gateway de Escrita (Split Screen):** Diferenciação entre "Luz" (Celebração) e "Sombra" (Liberação) com lógica de botões de *Identidade* e *Recurso*.
+*   **Espelho da Alma (Heatmap Interativo):** Mapeamento de frequências por hora/dia. Lógica de Pontos de Integração (cores mescladas violeta e brilho dourado) ativadas quando registros de sombra são ressignificados.
+*   **Oásis Estelar:** Espaço de descompressão com motor de partículas Canvas nativo e Vitrola da Alma (MP3 Player com persistência local).
+*   **Estrutura Global TopNav:** Barra de navegação fixa transversal a todas as páginas com *Glassmorphism* (`bg-[#301934]/60` e `backdrop-blur-xl`), contendo a marca à esquerda, menu central e botão centralizado de emergência S.O.S juntamente com a Identidade Dinâmica à direita.
+
+## 3. Engenharia do Sentir (Regras de PNL e Biofeedback)
+*   **Mecânica de Ressignificação:** Funcionalidade de editar registros de "Sombra", utilizando "Pontes de Permissão" para transformá-los em Insights de Luz no banco de dados.
+*   **O Ritual S.O.S (Pausa Sagrada):** Ciclo de 180s com respiração quadrada (4s cada fase).
+*   **Motor Sincronizado S.O.S:** Bola de luz central (`scale 1.0` a `1.5` calculado por *requestAnimationFrame* manual) e partículas Canvas ([easeInOutSine](file:///c:/Users/manutencao/Desktop/PORTAL%20DA%20PERMISSAO/src/components/SOSParticles.tsx#66-67)) em harmonia absoluta.
+*   **Áudio Context (Frequência 528Hz):** Áudio iniciado obrigatoriamente pelo clique inicial ([handleStart](file:///c:/Users/manutencao/Desktop/PORTAL%20DA%20PERMISSAO/src/components/SOSButton.tsx#149-184)) via `<audio>` nativo (evitando bloqueios de Autoplay/CORS). Aplicação de loop matemático de *Ramp Up* de volume conforme a inspiração, e Filtro *Low Pass* ativo (abafamento via BiquadFilterNode para ~800Hz) apenas durante a fase respiratória de "Vazio".
+
+## 4. Joalheria de Virtudes (Gamificação Emocional)
+*   **As 7 Joias Oficiais:**
+    1.  **Ametista do Início:** Ponto de partida. (Gatilho: Entrada no Portal / Primeiro Log).
+    2.  **Elo do Respiro:** Coragem de olhar a si mesma. (Gatilho: Criado no passado, padrão na inicialização pós-tour).
+    3.  **Brilho do Sorriso (Citrino Radiante):** Sustentação de frequência. (Gatilho: Ativado exatamente no 7º registro no Diário de Luz, disparando *glitter* na tela).
+    4.  **A Trama da Mudança:** A alquimia da narrativa. (Gatilho: Primeiro registro de "Sombra" editado e ressignificado com sucesso via Pontes de Permissão).
+    5.  **Prisma da Aceitação:** Ausência de dualidade dolorosa. (Gatilho: Somente após a primeira "Integração" verdadeira ser detectada no *Espelho da Alma* - um log que combine Luz e Sombra gerando brilho híbrido).
+    6.  **Essência do Ser:** Lápis Lazuli da verdade interna. (Gatilho: Em desenvolvimento contínuo).
+    7.  **Obsidiana da Verdade:** Mergulho corajoso na dor. (Gatilho: Em desenvolvimento, possivelmente 5 logs de Sombra acumulados).
+
+## 5. Padrões de Interface e UX
+*   **Identidade Dinâmica:** Variável em `localStorage` para injetar `{userName}` (com valor padrão estrito "Janaína") nos modais, *Welcome Tour* e na navegação global.
+*   **Feedback Visual Padronizado:** Implementação global da classe `.hover-seda` forçando com que *todos os 4 cards principais do Dashboard* sigam o design luxuoso base do "Oásis Estelar": borda em glow dourado, *box-shadow*: `#F7E7CE/20`, transição não-linear fluida `0.4s cubic-bezier(0.4, 0, 0.2, 1)`, e elevação escala global a `1.02`.
+*   **Tour de Boas-Vindas:** 6 passos orientados com transição do som de frequência de cristal 528Hz ativadas na etapa 2 ("Compreendo meu Poder") e imagem final ("Guardiã Mística").
+*   **Cursor de Poeira Estelar Dinâmico:** Componente [StarDustCursor](file:///c:/Users/manutencao/Desktop/PORTAL%20DA%20PERMISSAO/src/components/StarDustCursor.tsx#19-114) global Canvas. As coordenadas rastreiam o mouse emitindo trilhas suaves champagne (padrão). Mecânica reativa (*hover states*) aumentam localmente a densidade e o brilho para **Violeta Neon** em áreas de "Sombra/Tesouro" e **Ouro Oásis** (`#F7E7CE`) em passagens pela luz/oásis.
+
+## 6. Stack Tecnológica e Segurança
+*   **Frontend:** React + TS + Vite + Tailwind v4 + Framer Motion.
+*   **Áudio:** Tag HTML `<audio>` com `crossOrigin='anonymous'` para permitir o fluxo dos buffers externos (Pixabay) ao nosso roteamento via `AudioContext` nativo (impedindo CORS null-muting).
+*   **Dados:** Banco de logs `[...portal_logs]` em base isolada do cliente (via `localStorage` serializado JSON sem chamadas server-side vazadas), blindando a intimidade das reflexões.
