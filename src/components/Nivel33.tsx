@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Key, Shield, Unlock, Zap, AlertTriangle, FileText } from 'lucide-react';
+import { Key, Shield, AlertTriangle } from 'lucide-react';
 
 export default function Nivel33() {
     const [hasClaimed, setHasClaimed] = useState(false);

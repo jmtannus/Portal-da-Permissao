@@ -5,7 +5,7 @@ import SOSButton from './SOSButton';
 import Logo from './Logo';
 
 interface TopNavProps {
-    currentView: 'home' | 'espelho' | 'tesouro' | 'oasis' | 'escrita' | 'sombras' | 'luz';
+    currentView: 'home' | 'espelho' | 'tesouro' | 'oasis' | 'escrita' | 'sombras' | 'luz' | 'nivel33';
     setCurrentView: (view: any) => void;
 }
 
